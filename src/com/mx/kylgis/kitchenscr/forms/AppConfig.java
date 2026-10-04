@@ -22,7 +22,7 @@
  along with chromis.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.chromis.forms;
+package com.mx.kylgis.kitchenscr.forms;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -43,7 +43,7 @@ public class AppConfig {
     private static AppConfig instance = null;
     private final Properties m_propsconfig;
     private final File configFile;
-    private static final Logger logger = Logger.getLogger("uk.chromis.AppConfig");
+    private static final Logger logger = Logger.getLogger("com.mx.kylgis.kitchenscr.forms.AppConfig");
 
     protected AppConfig(File configFile) {
         this.configFile = configFile;

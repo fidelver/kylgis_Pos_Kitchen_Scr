@@ -21,7 +21,7 @@
  You should have received a copy of the GNU General Public License
  along with chromis.  If not, see <http://www.gnu.org/licenses/>.
  */
-package uk.chromis.kitchenscr;
+package com.mx.kylgis.kitchenscr;
 
 import java.util.List;
 import java.util.Optional;
@@ -43,9 +43,9 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
-import uk.chromis.forms.AppConfig;
-import uk.chromis.forms.AppLocal;
-import uk.chromis.hibernate.HibernateUtil;
+import com.mx.kylgis.kitchenscr.forms.AppConfig;
+import com.mx.kylgis.kitchenscr.forms.AppLocal;
+import com.mx.kylgis.kitchenscr.hibernate.HibernateUtil;
 
 /**
  *
@@ -85,7 +85,7 @@ public class KitchenScr extends Application {
             alert.getButtonTypes().setAll(buttonOK);
             Optional<ButtonType> result = alert.showAndWait();
             Stage secondaryStage = new Stage();
-            Parent root = FXMLLoader.load(getClass().getResource("/uk/chromis/configuration/database.fxml"));
+            Parent root = FXMLLoader.load(getClass().getResource("/com/mx/kylgis/kitchenscr/configuration/database.fxml"));
             secondaryStage.setTitle("Database Configuration - v" + AppLocal.APP_VERSION);
             secondaryStage.setScene(new Scene(root, 600, 500));
             setUserAgentStylesheet(STYLESHEET_MODENA);
@@ -211,7 +211,7 @@ public class KitchenScr extends Application {
                     Stage secondaryStage = new Stage();
                     Parent configRoot = FXMLLoader.load(
                             getClass().getResource(
-                                    "/uk/chromis/configuration/database.fxml"));
+                                    "/com/mx/kylgis/kitchenscr/configuration/database.fxml"));
                     secondaryStage.setTitle(
                             "Database Configuration - v" + AppLocal.APP_VERSION);
                     secondaryStage.setScene(

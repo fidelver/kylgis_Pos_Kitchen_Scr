@@ -21,7 +21,7 @@
  You should have received a copy of the GNU General Public License
  along with chromis.  If not, see <http://www.gnu.org/licenses/>.
  */
-package uk.chromis.kitchenscr;
+package com.mx.kylgis.kitchenscr;
 
 import java.awt.event.ActionListener;
 import java.net.URL;
@@ -52,10 +52,10 @@ import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
-import uk.chromis.dto.Orders;
-import uk.chromis.forms.AppConfig;
-import uk.chromis.utils.DataLogicKitchen;
-import uk.chromis.utils.FixedStack;
+import com.mx.kylgis.kitchenscr.dto.Orders;
+import com.mx.kylgis.kitchenscr.forms.AppConfig;
+import com.mx.kylgis.kitchenscr.utils.DataLogicKitchen;
+import com.mx.kylgis.kitchenscr.utils.FixedStack;
 
 /**
  * FXML Controller class

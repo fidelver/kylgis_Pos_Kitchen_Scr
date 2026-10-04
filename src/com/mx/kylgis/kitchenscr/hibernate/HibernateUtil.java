@@ -22,7 +22,7 @@
  along with chromis.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.chromis.hibernate;
+package com.mx.kylgis.kitchenscr.hibernate;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -34,10 +34,10 @@ import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
-import uk.chromis.dto.Orders;
+import com.mx.kylgis.kitchenscr.dto.Orders;
 
-import uk.chromis.forms.AppConfig;
-import uk.chromis.utils.AltEncrypter;
+import com.mx.kylgis.kitchenscr.forms.AppConfig;
+import com.mx.kylgis.kitchenscr.utils.AltEncrypter;
 
 public class HibernateUtil {
 

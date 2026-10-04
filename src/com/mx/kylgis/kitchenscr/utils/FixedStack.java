@@ -22,21 +22,30 @@
  along with chromis.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.chromis.customcontrol;
+package com.mx.kylgis.kitchenscr.utils;
 
-import com.sun.javafx.scene.control.skin.TextFieldSkin;
 
-/**
- *
- * @author cs_nd
- */
-public class KeyComboTextFieldSkin extends TextFieldSkin {
+import java.util.Stack;
 
-	KeyComboTextField keyComboTextField;
-	
-	public KeyComboTextFieldSkin(KeyComboTextField keyComboTextField) {
-		super(keyComboTextField);
-		this.keyComboTextField = keyComboTextField;
+
+
+
+public class FixedStack<T> extends Stack<T> {
+
+	private final int stackSize;
+
+	public FixedStack(int size) {
+		super();
+		this.stackSize = size;
 	}
-	
+
+	 @Override
+	 public Object push(Object object) {
+		// If we have reached the maximum size of the stack, remove the lowest element
+		while (this.size() >= stackSize) {
+			 this.remove(0);
+		}
+		return super.push((T) object);
+	}
+	 
 }

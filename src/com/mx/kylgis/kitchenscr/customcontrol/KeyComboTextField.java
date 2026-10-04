@@ -22,7 +22,7 @@
  along with chromis.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.chromis.customcontrol;
+package com.mx.kylgis.kitchenscr.customcontrol;
 
 import javafx.event.EventHandler;
 import javafx.scene.control.TextField;

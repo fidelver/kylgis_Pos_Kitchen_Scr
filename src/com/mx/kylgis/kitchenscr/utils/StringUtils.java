@@ -22,7 +22,7 @@
  along with chromis.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.chromis.utils;
+package com.mx.kylgis.kitchenscr.utils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;

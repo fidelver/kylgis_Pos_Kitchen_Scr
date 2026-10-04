@@ -22,30 +22,22 @@
  along with chromis.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.chromis.utils;
+package com.mx.kylgis.kitchenscr.forms;
 
 
-import java.util.Stack;
+public class AppLocal {
+
+/**
+*
+*/
+public static final String APP_NAME = "Chromis Kitchen Screen";
+public static final String APP_ID = "chromis";
+public static final String APP_VERSION = "1.61";
+
+      
+private AppLocal() {
+}
 
 
 
-
-public class FixedStack<T> extends Stack<T> {
-
-	private final int stackSize;
-
-	public FixedStack(int size) {
-		super();
-		this.stackSize = size;
-	}
-
-	 @Override
-	 public Object push(Object object) {
-		// If we have reached the maximum size of the stack, remove the lowest element
-		while (this.size() >= stackSize) {
-			 this.remove(0);
-		}
-		return super.push((T) object);
-	}
-	 
 }

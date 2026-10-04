@@ -22,7 +22,7 @@
  along with chromis.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.chromis.configuration;
+package com.mx.kylgis.kitchenscr.configuration;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
@@ -59,11 +59,11 @@ import liquibase.exception.LiquibaseException;
 import liquibase.resource.ClassLoaderResourceAccessor;
 import org.hibernate.Session;
 import org.hibernate.internal.SessionImpl;
-import uk.chromis.forms.AppConfig;
-import uk.chromis.hibernate.HibernateUtil;
-import uk.chromis.utils.AltEncrypter;
-import uk.chromis.utils.DirtyManager;
-import uk.chromis.customcontrol.*;
+import com.mx.kylgis.kitchenscr.forms.AppConfig;
+import com.mx.kylgis.kitchenscr.hibernate.HibernateUtil;
+import com.mx.kylgis.kitchenscr.utils.AltEncrypter;
+import com.mx.kylgis.kitchenscr.utils.DirtyManager;
+import com.mx.kylgis.kitchenscr.customcontrol.*;
 
 /**
  * FXML Controller class

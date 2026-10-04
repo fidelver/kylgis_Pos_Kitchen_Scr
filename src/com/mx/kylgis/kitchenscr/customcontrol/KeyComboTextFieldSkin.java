@@ -22,16 +22,21 @@
  along with chromis.  If not, see <http://www.gnu.org/licenses/>.
  */
 
- 
-#fileopen{
-    -fx-graphic: url("/uk/chromis/images/folder.png");
-} 
+package com.mx.kylgis.kitchenscr.customcontrol;
 
-#dbtest{
-   -fx-graphic: url("/uk/chromis/images/db_status.png"); 
-   -fx-graphic-text-gap : 5;
-}
+import com.sun.javafx.scene.control.skin.TextFieldSkin;
 
-#chromislogo{
-    -fx-image: url("/uk/chromis/images/chromis_main.png"); 
+/**
+ *
+ * @author cs_nd
+ */
+public class KeyComboTextFieldSkin extends TextFieldSkin {
+
+	KeyComboTextField keyComboTextField;
+	
+	public KeyComboTextFieldSkin(KeyComboTextField keyComboTextField) {
+		super(keyComboTextField);
+		this.keyComboTextField = keyComboTextField;
+	}
+	
 }

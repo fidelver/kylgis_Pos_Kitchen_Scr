@@ -22,22 +22,16 @@
  along with chromis.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.chromis.forms;
+ 
+#fileopen{
+    -fx-graphic: url("/com/mx/kylgis/kitchenscr/images/folder.png");
+} 
 
-
-public class AppLocal {
-
-/**
-*
-*/
-public static final String APP_NAME = "Chromis Kitchen Screen";
-public static final String APP_ID = "chromis";
-public static final String APP_VERSION = "1.61";
-
-      
-private AppLocal() {
+#dbtest{
+   -fx-graphic: url("/com/mx/kylgis/kitchenscr/images/db_status.png"); 
+   -fx-graphic-text-gap : 5;
 }
 
-
-
+#chromislogo{
+    -fx-image: url("/com/mx/kylgis/kitchenscr/images/chromis_main.png"); 
 }

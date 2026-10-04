@@ -22,7 +22,7 @@
  along with chromis.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.chromis.utils;
+package com.mx.kylgis.kitchenscr.utils;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -30,9 +30,9 @@ import java.util.List;
 import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
-import uk.chromis.dto.Orders;
-import uk.chromis.forms.AppConfig;
-import uk.chromis.hibernate.HibernateUtil;
+import com.mx.kylgis.kitchenscr.dto.Orders;
+import com.mx.kylgis.kitchenscr.forms.AppConfig;
+import com.mx.kylgis.kitchenscr.hibernate.HibernateUtil;
 
 public class DataLogicKitchen {
 

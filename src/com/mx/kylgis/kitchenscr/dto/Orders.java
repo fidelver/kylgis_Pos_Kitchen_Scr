@@ -22,7 +22,7 @@
  along with chromis.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.chromis.dto;
+package com.mx.kylgis.kitchenscr.dto;
 
 import java.io.Serializable;
 import java.sql.Timestamp;

@@ -22,7 +22,7 @@
  along with chromis.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.chromis.configuration;
+package com.mx.kylgis.kitchenscr.configuration;
 
 import javafx.application.Application;
 import static javafx.application.Application.launch;
@@ -30,7 +30,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import uk.chromis.forms.AppLocal;
+import com.mx.kylgis.kitchenscr.forms.AppLocal;
 
 /**
  *
