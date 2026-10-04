@@ -1,0 +1,29 @@
+#Chromis Kitchen Screen. Configuration file.
+#Sat Oct 03 07:31:21 CST 2026
+db.engine=MySql
+db.password=crypt\:89D13B14701501C2DCD7466E4416C332
+screen.secondscr=false
+screen.height=768
+keymap.selord8=8
+clock.time=HH\:mm\:ss
+keymap.selord7=7
+keymap.selord6=6
+keymap.selord5=5
+keymap.complete=Enter
+keymap.selord4=4
+keymap.selord3=3
+keymap.selord2=2
+db.user=KylGis
+keymap.selord1=1
+screen.amber=1
+unicenta.config.enabled=true
+db.driver=com.mysql.jdbc.Driver
+keymap.exit=Ctrl+Ignore Shortcut+Enter
+screen.displaynumber=2
+keymap.recall=R
+db.URL=jdbc\:mysql\://192.168.58.18\:3306/kylgis
+recall.historycount=10
+unicenta.config=/home/fam/kylgisplataformas.properties
+screen.width=1024
+db.dialect=org.hibernate.dialect.MySQLDialect
+screen.red=3
