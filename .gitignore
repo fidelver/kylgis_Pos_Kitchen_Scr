@@ -1,0 +1,8 @@
+/build/
+/dist/
+/nbproject/private/
+/backup/
+/BACKUP_*/
+/store/
+hs_err_pid*.log
+*.backup
