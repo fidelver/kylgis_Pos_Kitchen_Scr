@@ -491,7 +491,7 @@ public class DatabaseController implements Initializable {
 
             Connection connection = sessionImpl.connection();
             try {
-                String changelog = "uk/chromis/configuration/kitchentable.xml";
+                String changelog = "com/mx/kylgis/kitchenscr/configuration/kitchentable.xml";
                 Database database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(connection));
                 Liquibase liquibase = new Liquibase(changelog, new ClassLoaderResourceAccessor(), database);
                 liquibase.update("implement");
