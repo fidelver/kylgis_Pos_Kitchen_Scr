@@ -62,15 +62,15 @@ public class DataLogicKitchen {
 
     /**
      * Load all orders for the current display in a single query.
-     * Orders are returned ordered by order time and auxiliary value.
+     * Orders are returned in their original insertion order inside each send.
      */
     public List<Orders> selectAllOrders() {
         if (Boolean.valueOf(AppConfig.getInstance().getProperty("screen.allorders"))) {
-            sql_query = "SELECT * FROM orders ORDER BY ORDERTIME, AUXILIARY ";
+            sql_query = "SELECT * FROM orders ORDER BY ORDERTIME, ID ";
         } else {
             sql_query = "SELECT * FROM orders WHERE DISPLAYID = "
                     + Integer.parseInt(AppConfig.getInstance().getProperty("screen.displaynumber"))
-                    + " ORDER BY ORDERTIME, AUXILIARY ";
+                    + " ORDER BY ORDERTIME, ID ";
         }
 
         SQLQuery query = HibernateUtil.getSessionFactory()
@@ -129,9 +129,9 @@ public class DataLogicKitchen {
 
     public List<Orders> selectByOrderId(String orderid) {
         if (Boolean.valueOf(AppConfig.getInstance().getProperty("screen.allorders"))) {
-            sql_query = "SELECT * FROM orders WHERE ORDERID ='" + orderid + "' ORDER BY AUXILIARY ";
+            sql_query = "SELECT * FROM orders WHERE ORDERID ='" + orderid + "' ORDER BY ID ";
         } else {
-            sql_query = "SELECT * FROM orders WHERE ORDERID ='" + orderid + "' AND DISPLAYID = " + Integer.parseInt(AppConfig.getInstance().getProperty("screen.displaynumber")) + " ORDER BY AUXILIARY ";
+            sql_query = "SELECT * FROM orders WHERE ORDERID ='" + orderid + "' AND DISPLAYID = " + Integer.parseInt(AppConfig.getInstance().getProperty("screen.displaynumber")) + " ORDER BY ID ";
         }
 
         SQLQuery query = HibernateUtil.getSessionFactory().openSession().createSQLQuery(sql_query);

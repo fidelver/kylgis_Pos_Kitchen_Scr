@@ -483,42 +483,12 @@ public class KitchenscrController implements Initializable {
 
             KitchenscrController.orderDataList.put(orderIndex, orderGroup);
 
-            // Separate normal products from auxiliary lines.
-            // selectAllOrders() currently returns normal lines first and
-            // auxiliary lines afterwards. Rebuild that sequence as:
-            // product, auxiliary, product, auxiliary...
-            List<Orders> normalOrders = new java.util.ArrayList<Orders>();
-            List<Orders> auxiliaryOrders = new java.util.ArrayList<Orders>();
+            // The POS inserts kitchen rows in the same order as the ticket lines.
+            // AUXILIARY is only a marker (null/1); it does not identify a parent
+            // product. Preserve database insertion order (ID), which keeps every
+            // auxiliary immediately after the product that created it.
 
             for (Orders order : orderGroup) {
-                if (order.getAuxiliary() != null) {
-                    auxiliaryOrders.add(order);
-                } else {
-                    normalOrders.add(order);
-                }
-            }
-
-            // Interleave each auxiliary immediately after its corresponding
-            // product, preserving the original order inside both lists.
-            List<Orders> displayOrders = new java.util.ArrayList<Orders>();
-
-            int pairCount = Math.min(normalOrders.size(), auxiliaryOrders.size());
-
-            for (int i = 0; i < pairCount; i++) {
-                displayOrders.add(normalOrders.get(i));
-                displayOrders.add(auxiliaryOrders.get(i));
-            }
-
-            // Preserve any unmatched lines instead of losing them.
-            if (normalOrders.size() > pairCount) {
-                displayOrders.addAll(normalOrders.subList(pairCount, normalOrders.size()));
-            }
-
-            if (auxiliaryOrders.size() > pairCount) {
-                displayOrders.addAll(auxiliaryOrders.subList(pairCount, auxiliaryOrders.size()));
-            }
-
-            for (Orders order : displayOrders) {
                 KitchenscrController.ticketIds.put(orderIndex, order.getTicketid());
                 ((Label) KitchenscrController.idLabels.get(orderIndex)).setText(order.getTicketid());
                 KitchenscrController.startTimes.put(orderIndex, order.getOrdertime().getTime());
