@@ -59,6 +59,20 @@ public class AppConfig {
 
     public File getConfigFile() { return configFile; }
     public boolean isProvisioned() { return provisioningResult != null && provisioningResult.isProvisioned(); }
+
+    public boolean isMasterNode() {
+        String roles = getProperty("node.roles");
+        if (roles == null) {
+            return false;
+        }
+        for (String token : roles.split("[,;\\s]+")) {
+            if ("master".equalsIgnoreCase(token.trim())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public File getMasterConfigFile() { return isProvisioned() ? provisioningResult.getMasterFile() : null; }
     public File getNodeModuleFile() { return isProvisioned() ? provisioningResult.getNodeModuleFile() : null; }
 
