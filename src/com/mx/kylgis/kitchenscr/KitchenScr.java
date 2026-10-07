@@ -35,8 +35,10 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.control.Label;
+import javafx.geometry.Pos;
 import javafx.scene.image.Image;
-import javafx.scene.layout.StackPane;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
@@ -179,12 +181,21 @@ public class KitchenScr extends Application {
         startupConfigStage.setTitle(AppLocal.APP_NAME);
         applyBrandIcon(startupConfigStage);
 
-        Label startupConfigLabel = new Label(
-                "Presiona F12 para entrar a configuración");
-        startupConfigLabel.setStyle("-fx-font-size: 16px;");
+        ImageView startupLogo = new ImageView(new Image(
+                getClass().getResourceAsStream(
+                        "/com/mx/kylgis/kitchenscr/images/kylgis_main.png")));
+        startupLogo.setFitWidth(340);
+        startupLogo.setPreserveRatio(true);
+        startupLogo.setSmooth(true);
 
-        StackPane startupConfigPane = new StackPane(startupConfigLabel);
-        startupConfigPane.setPrefSize(420, 140);
+        Label startupConfigLabel = new Label("F12 Conf.");
+        startupConfigLabel.setStyle(
+                "-fx-font-size: 12px; -fx-text-fill: #666666;");
+
+        VBox startupConfigPane = new VBox(8, startupLogo, startupConfigLabel);
+        startupConfigPane.setAlignment(Pos.CENTER);
+        startupConfigPane.setPrefSize(440, 235);
+        startupConfigPane.setStyle("-fx-background-color: white;");
 
         Scene startupConfigScene = new Scene(startupConfigPane);
 
@@ -245,7 +256,7 @@ public class KitchenScr extends Application {
         startupConfigStage.requestFocus();
 
         PauseTransition startupConfigTimer =
-                new PauseTransition(Duration.seconds(1));
+                new PauseTransition(Duration.seconds(2));
 
         startupConfigTimer.setOnFinished(event -> {
             if (!configurationRequested[0]) {
