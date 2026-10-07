@@ -235,11 +235,15 @@
                                   <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
                                        <children>
                                           <ListView fx:id="orderlist" editable="true" layoutY="267.0" prefHeight="540.0" prefWidth="142.0" style="-fx-fixed-cell-size: 24;" AnchorPane.bottomAnchor="125.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-                                          <ImageView fitWidth="120.0" preserveRatio="true" smooth="true" AnchorPane.bottomAnchor="18.0" AnchorPane.leftAnchor="11.0" AnchorPane.rightAnchor="11.0">
-                                             <image>
-                                                <Image url="@images/kylgis_main.png" />
-                                             </image>
-                                          </ImageView>
+                                          <StackPane prefHeight="108.0" style="-fx-background-color: white; -fx-padding: 6;" AnchorPane.bottomAnchor="9.0" AnchorPane.leftAnchor="8.0" AnchorPane.rightAnchor="8.0">
+                                             <children>
+                                                <ImageView fitWidth="150.0" preserveRatio="true" smooth="true">
+                                                   <image>
+                                                      <Image url="@images/kylgis_main.png" />
+                                                   </image>
+                                                </ImageView>
+                                             </children>
+                                          </StackPane>
                                        </children>
                                     </AnchorPane>
                                 </items>

@@ -63,6 +63,8 @@ import com.mx.kylgis.kitchenscr.utils.FixedStack;
 public class KitchenscrController implements Initializable {
 
     private final AtomicBoolean orderUpdateRunning = new AtomicBoolean(false);
+    private javax.swing.Timer clockTimer;
+    private javax.swing.Timer displayTimer;
 
     public Button exit;
     public Button completed;
@@ -202,8 +204,10 @@ public class KitchenscrController implements Initializable {
         // Recall button is initially not visible.  It is visible when an order is closed.
         displayRecallButton();
 
-        new javax.swing.Timer(1000, new PrintTimeAction()).start();
-        new javax.swing.Timer(10000, new updateDisplay()).start();
+        clockTimer = new javax.swing.Timer(1000, new PrintTimeAction());
+        clockTimer.start();
+        displayTimer = new javax.swing.Timer(10000, new updateDisplay());
+        displayTimer.start();
 
         order0items.setOnMouseClicked((MouseEvent event) -> {
             selectOrder(0);
@@ -252,6 +256,18 @@ public class KitchenscrController implements Initializable {
 
         createMaps();
         buildOrderPanels();
+    }
+
+    public void shutdown() {
+        if (clockTimer != null) {
+            clockTimer.stop();
+            clockTimer = null;
+        }
+        if (displayTimer != null) {
+            displayTimer.stop();
+            displayTimer = null;
+        }
+        orderUpdateRunning.set(false);
     }
 
     public void handleExitClick() {

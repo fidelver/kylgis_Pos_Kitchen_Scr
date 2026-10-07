@@ -62,6 +62,8 @@ public class KitchenScr extends Application {
 
     public static String parameter;
     public static Stage publicStage;
+    private KitchenscrController kitchenController;
+    private boolean cleanupPerformed = false;
 
     /**
      * @param args the command line arguments
@@ -94,6 +96,7 @@ public class KitchenScr extends Application {
             applyBrandIcon(secondaryStage);
             secondaryStage.setScene(new Scene(root, 600, 500));
             setUserAgentStylesheet(STYLESHEET_MODENA);
+            installApplicationCloseHandler(secondaryStage);
             secondaryStage.showAndWait();
 
             databaseReady = HibernateUtil.rebuildSessionFactory();
@@ -147,7 +150,7 @@ public class KitchenScr extends Application {
 
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("kitchenscr.fxml"));
         Parent root = (Parent) fxmlLoader.load();
-        KitchenscrController myController = (KitchenscrController) fxmlLoader.getController();
+        kitchenController = (KitchenscrController) fxmlLoader.getController();
 
         Scene myScene = new Scene(root, width, height);
 
@@ -162,7 +165,7 @@ public class KitchenScr extends Application {
                 stage.setY(bounds.getMinY());
                 stage.setScene(myScene);
                 applyBrandIcon(stage);
-                myController.setScene(myScene);
+                kitchenController.setScene(myScene);
                 stage.initStyle(StageStyle.UNDECORATED);
                 stage.initModality(Modality.APPLICATION_MODAL);
                 publicStage = stage;
@@ -174,7 +177,7 @@ public class KitchenScr extends Application {
                 stage.setY(scrYpos);
                 stage.setScene(myScene);
                 applyBrandIcon(stage);
-                myController.setScene(myScene);
+                kitchenController.setScene(myScene);
                 stage.initStyle(StageStyle.UNDECORATED);
                 stage.initModality(Modality.APPLICATION_MODAL);
                 publicStage = stage;
@@ -185,10 +188,12 @@ public class KitchenScr extends Application {
             primaryStage.setX(scrXpos);
             primaryStage.setY(scrYpos);
             primaryStage.setScene(myScene);
-            myController.setScene(myScene);
+            kitchenController.setScene(myScene);
             primaryStage.initStyle(StageStyle.UNDECORATED);
             publicStage = primaryStage;
         }
+
+        installApplicationCloseHandler(publicStage);
 
         // Aviso de acceso a configuración durante el arranque.
         // KitchenScreen no se muestra hasta que termina este aviso.
@@ -251,6 +256,7 @@ public class KitchenScr extends Application {
                             new Scene(configRoot, 600, 500));
                     setUserAgentStylesheet(STYLESHEET_MODENA);
                     secondaryStage.initModality(Modality.APPLICATION_MODAL);
+                    installApplicationCloseHandler(secondaryStage);
                     secondaryStage.showAndWait();
                 } catch (Exception ex) {
                     ex.printStackTrace();
@@ -261,10 +267,8 @@ public class KitchenScr extends Application {
         });
 
         startupConfigStage.setOnCloseRequest(event -> {
-            if (!configurationRequested[0]) {
-                event.consume();
-                continueStartup.run();
-            }
+            event.consume();
+            shutdownApplication();
         });
 
         startupConfigStage.show();
@@ -281,6 +285,48 @@ public class KitchenScr extends Application {
 
         startupConfigTimer.play();
     }
+    private void installApplicationCloseHandler(Stage stage) {
+        if (stage == null) {
+            return;
+        }
+        stage.setOnCloseRequest(event -> {
+            event.consume();
+            shutdownApplication();
+        });
+    }
+
+    private void cleanupApplication() {
+        if (cleanupPerformed) {
+            return;
+        }
+        cleanupPerformed = true;
+
+        try {
+            if (kitchenController != null) {
+                kitchenController.shutdown();
+            }
+        } catch (Exception ignored) {
+            // Continue closing the application.
+        }
+
+        try {
+            HibernateUtil.shutdown();
+        } catch (Exception ignored) {
+            // Continue closing the application.
+        }
+    }
+
+    private void shutdownApplication() {
+        cleanupApplication();
+        Platform.exit();
+        System.exit(0);
+    }
+
+    @Override
+    public void stop() {
+        cleanupApplication();
+    }
+
     private void applyBrandIcon(Stage stage) {
         try {
             java.io.InputStream iconStream = getClass().getResourceAsStream(
