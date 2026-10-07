@@ -252,11 +252,11 @@
             </AnchorPane>
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
                <children>
-                  <Button fx:id="completed" defaultButton="true" layoutX="212.0" layoutY="10.0" mnemonicParsing="false" onAction="#handleCompleteOrder" prefHeight="35.0" prefWidth="600.0" textAlignment="CENTER" AnchorPane.bottomAnchor="7.0" AnchorPane.leftAnchor="212.0" AnchorPane.rightAnchor="210.0">
+                  <Button fx:id="completed" defaultButton="true" layoutX="190.0" layoutY="5.0" mnemonicParsing="false" onAction="#handleCompleteOrder" prefHeight="43.0" prefWidth="534.0" textAlignment="CENTER" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="190.0" AnchorPane.rightAnchor="300.0">
                      <font>
                         <Font name="Tahoma Bold" size="18.0" />
                      </font></Button>
-                  <Button fx:id="exit" layoutX="954.0" layoutY="9.0" mnemonicParsing="false" onAction="#handleExitClick" prefHeight="29.0" prefWidth="59.0" text="Salir" AnchorPane.bottomAnchor="7.0" AnchorPane.rightAnchor="9.0">
+                  <Button fx:id="exit" layoutX="926.0" layoutY="6.0" mnemonicParsing="false" onAction="#handleExitClick" prefHeight="41.0" prefWidth="88.0" text="Salir" AnchorPane.bottomAnchor="5.0" AnchorPane.rightAnchor="10.0">
                      <font>
                         <Font name="Tahoma Bold" size="18.0" />
                      </font></Button>
@@ -264,7 +264,7 @@
                      <font>
                         <Font name="Arial Bold" size="24.0" />
                      </font></Label>
-                  <Button fx:id="recall" layoutX="846.0" layoutY="10.0" mnemonicParsing="false" onAction="#handleRecallOrder" prefHeight="33.0" prefWidth="90.0" text="Recuperar" AnchorPane.bottomAnchor="7.0" AnchorPane.rightAnchor="86.0">
+                  <Button fx:id="recall" layoutX="788.0" layoutY="6.0" mnemonicParsing="false" onAction="#handleRecallOrder" prefHeight="41.0" prefWidth="130.0" text="Recuperar" AnchorPane.bottomAnchor="5.0" AnchorPane.rightAnchor="106.0">
 							<font>
 								<Font name="Tahoma Bold" size="18.0" />
 							</font>
