@@ -1,6 +1,6 @@
-# KylGis Kitchen Screen — authorship and upstream attribution
+# KylGis POS Monitor de Cocina — authorship and upstream attribution
 
-KylGis Kitchen Screen is the KylGis-branded continuation of Chromis Kitchen Screen and is distributed under the GNU General Public License v3 or later, consistent with the inherited source license.
+KylGis POS Monitor de Cocina is the KylGis-branded continuation of Chromis Kitchen Screen and is distributed under the GNU General Public License v3 or later, consistent with the inherited source license.
 
 ## Upstream
 

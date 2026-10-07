@@ -1,23 +1,23 @@
 /*
- KylGis Kitchen Screen
+ KylGis POS Monitor de Cocina
  Modifications Copyright (c) 2026 KylGis
  Portions Copyright (c) 2015 John Lewis / Chromis
 
  Based on Chromis Kitchen Screen. Upstream attribution is retained under the
  GNU General Public License, version 3 or (at your option) any later version.
 
- KylGis Kitchen Screen is free software: you can redistribute it and/or modify
+ KylGis POS Monitor de Cocina is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by the
  Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
 
- KylGis Kitchen Screen is distributed in the hope that it will be useful,
+ KylGis POS Monitor de Cocina is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with KylGis Kitchen Screen. If not, see <http://www.gnu.org/licenses/>.
+ along with KylGis POS Monitor de Cocina. If not, see <http://www.gnu.org/licenses/>.
  */
 package com.mx.kylgis.kitchenscr;
 
@@ -269,20 +269,20 @@ public class KitchenscrController implements Initializable {
             case "":
 
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Exit Kitchen");
+                alert.setTitle("Salir del Monitor de Cocina");
                 alert.setX(100);
                 alert.setY(150);
                 if ("monitor".equals(KitchenScr.parameter)) {
                     alert.setHeaderText("");
-                    alert.setContentText("Do You want to exit the Kitchen screen?");
+                    alert.setContentText("¿Deseas salir del Monitor de Cocina?");
                 } else {
-                    alert.setHeaderText("Notice :  \nIf you close the kitchen for the day any unprocessed orders will be deleted from the database.");
-                    alert.setContentText("Do You want to close the Kitchen for the Day?");
+                    alert.setHeaderText("Aviso:\nSi cierras la cocina por el día, las comandas pendientes se eliminarán de la base de datos.");
+                    alert.setContentText("¿Deseas cerrar la cocina por el día?");
                 }
-                ButtonType buttonClearExit = new ButtonType("Close Kitchen");
-                ButtonType buttonClearDisplayExit = new ButtonType("Close Display");
-                ButtonType buttonCancel = new ButtonType("Cancel");
-                ButtonType buttonExit = new ButtonType("Exit");
+                ButtonType buttonClearExit = new ButtonType("Cerrar cocina");
+                ButtonType buttonClearDisplayExit = new ButtonType("Cerrar monitor");
+                ButtonType buttonCancel = new ButtonType("Cancelar");
+                ButtonType buttonExit = new ButtonType("Salir");
                 if ("monitor".equals(KitchenScr.parameter)) {
                     alert.getButtonTypes().setAll(buttonExit, buttonCancel);
                 } else {
@@ -434,7 +434,7 @@ public class KitchenscrController implements Initializable {
         if (selectedOrderId == null) {
             completed.setText("");
         } else {
-            completed.setText("Order :  '" + id + "'  Complete.");
+            completed.setText("Comanda: '" + id + "' completada.");
         }
     }
 

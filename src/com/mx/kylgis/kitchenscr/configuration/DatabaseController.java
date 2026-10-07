@@ -1,23 +1,23 @@
 /*
- KylGis Kitchen Screen
+ KylGis POS Monitor de Cocina
  Modifications Copyright (c) 2026 KylGis
  Portions Copyright (c) 2015 John Lewis / Chromis
 
  Based on Chromis Kitchen Screen. Upstream attribution is retained under the
  GNU General Public License, version 3 or (at your option) any later version.
 
- KylGis Kitchen Screen is free software: you can redistribute it and/or modify
+ KylGis POS Monitor de Cocina is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by the
  Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
 
- KylGis Kitchen Screen is distributed in the hope that it will be useful,
+ KylGis POS Monitor de Cocina is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with KylGis Kitchen Screen. If not, see <http://www.gnu.org/licenses/>.
+ along with KylGis POS Monitor de Cocina. If not, see <http://www.gnu.org/licenses/>.
  */
 
 package com.mx.kylgis.kitchenscr.configuration;
@@ -396,13 +396,13 @@ public class DatabaseController implements Initializable {
 
     private void handleKylGisPosBrowse() {
         FileChooser chooser = new FileChooser();
-        chooser.setTitle("Select KylGis POS properties file");
+        chooser.setTitle("Seleccionar archivo de propiedades de KylGis POS");
         chooser.getExtensionFilters().add(
                 new FileChooser.ExtensionFilter(
-                        "Properties files", "*.properties"));
+                        "Archivos de propiedades", "*.properties"));
         chooser.getExtensionFilters().add(
                 new FileChooser.ExtensionFilter(
-                        "All files", "*.*"));
+                        "Todos los archivos", "*.*"));
 
         String currentPath = jtxtKylGisPosConfig.getText();
 
@@ -502,11 +502,11 @@ public class DatabaseController implements Initializable {
     public void handleExitClick() throws IOException, LiquibaseException {                    
         if (dirty.isDirty()) {
             Alert alert = new Alert(AlertType.INFORMATION);
-            alert.setTitle("Exit Configuration");
+            alert.setTitle("Salir de configuración");
             alert.setHeaderText(null);
-            alert.setContentText("You have changed data, that has not been changed. What do you wish to do?");
-            ButtonType buttonSaveExit = new ButtonType("Save & Exit");
-            ButtonType buttonExit = new ButtonType("Exit");
+            alert.setContentText("Tienes cambios sin guardar. ¿Qué deseas hacer?");
+            ButtonType buttonSaveExit = new ButtonType("Guardar y salir");
+            ButtonType buttonExit = new ButtonType("Salir sin guardar");
             alert.getButtonTypes().setAll(buttonSaveExit, buttonExit);
             Optional<ButtonType> result = alert.showAndWait();
             if (result.get() == buttonSaveExit) {

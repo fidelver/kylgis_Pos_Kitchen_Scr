@@ -7,8 +7,8 @@
 <!-- the Compile on Save feature is turned off for the project. -->
 <!-- You can turn off the Compile on Save (or Deploy on Save) setting -->
 <!-- in the project's Project Properties dialog box.-->
-<project name="KylGis_Kitchen_Screen" default="default" basedir=".">
-    <description>Builds, tests, and runs the project KylGis_Kitchen_Screen.</description>
+<project name="KylGis_POS_Monitor_de_Cocina" default="default" basedir=".">
+    <description>Builds, tests, and runs the project KylGis_POS_Monitor_de_Cocina.</description>
     <import file="nbproject/build-impl.xml"/>
     <!--
 
@@ -58,7 +58,7 @@
 
     An example of overriding the target for project execution could look like this:
 
-        <target name="run" depends="KylGis_Kitchen_Screen-impl.jar">
+        <target name="run" depends="KylGis_POS_Monitor_de_Cocina-impl.jar">
             <exec dir="bin" executable="launcher.exe">
                 <arg file="${dist.jar}"/>
             </exec>
@@ -70,7 +70,11 @@
     nbproject/build-impl.xml file. 
 
     -->
-    <target name="run" depends="init,compile,jar" description="Run KylGis Kitchen Screen with JavaFX GTK/X11 compatibility.">
+    <target name="-post-jar">
+        <copy file="README_DISTRIBUCION.txt" tofile="${dist.dir}/README.TXT" overwrite="true"/>
+    </target>
+
+    <target name="run" depends="init,compile,jar" description="Ejecutar KylGis POS Monitor de Cocina con compatibilidad JavaFX GTK/X11.">
         <java classname="${main.class}"
               dir="${work.dir}"
               failonerror="true"

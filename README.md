@@ -1,19 +1,19 @@
-# KylGis Kitchen Screen
+# KylGis POS Monitor de Cocina
 
-**KylGis Kitchen Screen** es la pantalla de cocina integrada con KylGis POS. El proyecto mantiene su repositorio independiente y utiliza el namespace `com.mx.kylgis.kitchenscr`.
+**KylGis POS Monitor de Cocina** es la pantalla de cocina integrada con KylGis POS. El proyecto mantiene su repositorio independiente y utiliza el namespace `com.mx.kylgis.kitchenscr`.
 
 ## Identidad
 
-- Producto: **KylGis Kitchen Screen**
+- Producto: **KylGis POS Monitor de Cocina**
 - Versión KylGis: **1.0.0**
 - Sitio del producto: `https://pos.kylgis.com`
 - Clase principal: `com.mx.kylgis.kitchenscr.KitchenScr`
-- Artefacto: `dist/KylGis_Kitchen_Screen.jar`
-- Configuración local: `~/kylgis-kitchen-screen.properties`
+- Artefacto: `dist/KylGis_POS_Monitor_de_Cocina.jar`
+- Configuración local: `~/kylgis-pos-monitor-cocina.properties`
 
 ## Integración con KylGis POS
 
-Kitchen Screen puede reutilizar directamente un archivo `.properties` de KylGis POS. Las claves actuales son `kylgis.pos.config.enabled` y `kylgis.pos.config`. Las instalaciones antiguas que todavía tengan `~/chromis.properties` o las claves `unicenta.config.*` se migran automáticamente por compatibilidad.
+Kitchen Screen puede reutilizar directamente un archivo `.properties` de KylGis POS. Las claves actuales son `kylgis.pos.config.enabled` y `kylgis.pos.config`. Las instalaciones anteriores que todavía tengan `~/kylgis-kitchen-screen.properties` o `~/chromis.properties` o las claves `unicenta.config.*` se migran automáticamente por compatibilidad.
 
 ## Compilación
 

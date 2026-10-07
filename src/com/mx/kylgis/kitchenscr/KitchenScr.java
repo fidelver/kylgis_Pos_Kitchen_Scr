@@ -1,23 +1,23 @@
 /*
- KylGis Kitchen Screen
+ KylGis POS Monitor de Cocina
  Modifications Copyright (c) 2026 KylGis
  Portions Copyright (c) 2015 John Lewis / Chromis
 
  Based on Chromis Kitchen Screen. Upstream attribution is retained under the
  GNU General Public License, version 3 or (at your option) any later version.
 
- KylGis Kitchen Screen is free software: you can redistribute it and/or modify
+ KylGis POS Monitor de Cocina is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by the
  Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
 
- KylGis Kitchen Screen is distributed in the hope that it will be useful,
+ KylGis POS Monitor de Cocina is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with KylGis Kitchen Screen. If not, see <http://www.gnu.org/licenses/>.
+ along with KylGis POS Monitor de Cocina. If not, see <http://www.gnu.org/licenses/>.
  */
 package com.mx.kylgis.kitchenscr;
 
@@ -77,15 +77,15 @@ public class KitchenScr extends Application {
             HibernateUtil.getSessionFactory().openSession();
         } catch (Exception ex) {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Database Error");
+            alert.setTitle("Error de base de datos");
             alert.setHeaderText(null);
-            alert.setContentText("Unable to connect to the database.");
-            ButtonType buttonOK = new ButtonType("OK");
+            alert.setContentText("No fue posible conectar con la base de datos.");
+            ButtonType buttonOK = new ButtonType("Aceptar");
             alert.getButtonTypes().setAll(buttonOK);
             Optional<ButtonType> result = alert.showAndWait();
             Stage secondaryStage = new Stage();
             Parent root = FXMLLoader.load(getClass().getResource("/com/mx/kylgis/kitchenscr/configuration/database.fxml"));
-            secondaryStage.setTitle(AppLocal.APP_NAME + " - Database Configuration - v" + AppLocal.APP_VERSION);
+            secondaryStage.setTitle(AppLocal.APP_NAME + " - Configuración de base de datos - v" + AppLocal.APP_VERSION);
             applyBrandIcon(secondaryStage);
             secondaryStage.setScene(new Scene(root, 600, 500));
             setUserAgentStylesheet(STYLESHEET_MODENA);
@@ -219,7 +219,7 @@ public class KitchenScr extends Application {
                             getClass().getResource(
                                     "/com/mx/kylgis/kitchenscr/configuration/database.fxml"));
                     secondaryStage.setTitle(
-                            AppLocal.APP_NAME + " - Database Configuration - v" + AppLocal.APP_VERSION);
+                            AppLocal.APP_NAME + " - Configuración de base de datos - v" + AppLocal.APP_VERSION);
                     applyBrandIcon(secondaryStage);
                     secondaryStage.setScene(
                             new Scene(configRoot, 600, 500));

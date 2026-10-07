@@ -1,23 +1,23 @@
 /*
- KylGis Kitchen Screen
+ KylGis POS Monitor de Cocina
  Modifications Copyright (c) 2026 KylGis
  Portions Copyright (c) 2015 John Lewis / Chromis
 
  Based on Chromis Kitchen Screen. Upstream attribution is retained under the
  GNU General Public License, version 3 or (at your option) any later version.
 
- KylGis Kitchen Screen is free software: you can redistribute it and/or modify
+ KylGis POS Monitor de Cocina is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by the
  Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
 
- KylGis Kitchen Screen is distributed in the hope that it will be useful,
+ KylGis POS Monitor de Cocina is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with KylGis Kitchen Screen. If not, see <http://www.gnu.org/licenses/>.
+ along with KylGis POS Monitor de Cocina. If not, see <http://www.gnu.org/licenses/>.
  */
 
 package com.mx.kylgis.kitchenscr.forms;
@@ -65,6 +65,10 @@ public class AppConfig {
         return new File(new File(System.getProperty("user.home")), AppLocal.LEGACY_APP_ID + ".properties");
     }
 
+    private File getChromisLegacyConfig() {
+        return new File(new File(System.getProperty("user.home")), AppLocal.LEGACY_CHROMIS_APP_ID + ".properties");
+    }
+
     public String getDirPath() {
         String dirname = System.getProperty("dirname.path");
         return (dirname == null ? "./" : dirname);
@@ -89,14 +93,24 @@ public class AppConfig {
 
     public void load() {
         loadDefault();
-        File source = configFile.isFile() ? configFile : getLegacyConfig();
+        File source = configFile;
+        if (!source.isFile()) {
+            File previousKylGisConfig = getLegacyConfig();
+            File chromisConfig = getChromisLegacyConfig();
+            if (previousKylGisConfig.isFile()) {
+                source = previousKylGisConfig;
+            } else if (chromisConfig.isFile()) {
+                source = chromisConfig;
+            }
+        }
+        boolean migratingLegacyConfig = !source.equals(configFile) && source.isFile();
         try (InputStream in = new FileInputStream(source)) {
             m_propsconfig.load(in);
             migrateLegacyProperties();
 
-            if (!configFile.isFile() && source.equals(getLegacyConfig())) {
+            if (migratingLegacyConfig) {
                 logger.log(Level.INFO,
-                        "Migrating legacy Kitchen Screen configuration to: {0}",
+                        "Migrando configuración anterior del monitor de cocina a: {0}",
                         configFile.getAbsolutePath());
                 save();
             }
@@ -122,7 +136,7 @@ public class AppConfig {
     public void save() throws IOException {
         OutputStream out = new FileOutputStream(configFile);
         if (out != null) {
-            m_propsconfig.store(out, AppLocal.APP_NAME + ". Configuration file.");
+            m_propsconfig.store(out, AppLocal.APP_NAME + ". Archivo de configuración.");
             out.close();
         }
     }
