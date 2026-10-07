@@ -379,19 +379,23 @@ public class DatabaseController implements Initializable {
     }
 
     private void updateKylGisPosConfigControls() {
+        boolean provisionedNode = AppConfig.getInstance().isProvisioned();
         boolean useKylGisPos = jUseKylGisPosConfig.isSelected();
+        boolean lockLegacyDatabase = provisionedNode || useKylGisPos;
 
-        // Cuando se usa KylGis POS, los datos manuales de BBDD quedan bloqueados.
-        jcboDBDriver.setDisable(useKylGisPos);
-        jtxtDbDriver.setDisable(useKylGisPos);
-        jtxtDbURL.setDisable(useKylGisPos);
-        jtxtDbUser.setDisable(useKylGisPos);
-        jtxtDbPassword.setDisable(useKylGisPos);
-        jtxtDialect.setDisable(useKylGisPos);
+        // En un nodo MASTER la BBDD efectiva proviene del módulo del nodo.
+        // No se deben crear credenciales/rutas locales paralelas.
+        jcboDBDriver.setDisable(lockLegacyDatabase);
+        jtxtDbDriver.setDisable(lockLegacyDatabase);
+        jtxtDbURL.setDisable(lockLegacyDatabase);
+        jtxtDbUser.setDisable(lockLegacyDatabase);
+        jtxtDbPassword.setDisable(lockLegacyDatabase);
+        jtxtDialect.setDisable(lockLegacyDatabase);
 
-        // La ruta y el botón solo están disponibles cuando se usa KylGis POS.
-        jtxtKylGisPosConfig.setDisable(!useKylGisPos);
-        btnKylGisPosBrowse.setDisable(!useKylGisPos);
+        // La referencia directa al properties del POS es sólo compatibilidad legacy.
+        jUseKylGisPosConfig.setDisable(provisionedNode);
+        jtxtKylGisPosConfig.setDisable(provisionedNode || !useKylGisPos);
+        btnKylGisPosBrowse.setDisable(provisionedNode || !useKylGisPos);
     }
 
     private void handleKylGisPosBrowse() {
@@ -423,17 +427,21 @@ public class DatabaseController implements Initializable {
     }
 
     public void handleSaveClick() throws IOException, LiquibaseException {
-        AppConfig.getInstance().setProperty("screen.secondscr", Boolean.toString(jSecondscr.isSelected()));
-        AppConfig.getInstance().setProperty("kylgis.pos.config.enabled", Boolean.toString(jUseKylGisPosConfig.isSelected()));
-        AppConfig.getInstance().setProperty("kylgis.pos.config", jtxtKylGisPosConfig.getText());
-        AppConfig.getInstance().setProperty("db.engine", jcboDBDriver.getValue());
-        AppConfig.getInstance().setProperty("screen.displaynumber", displayNumber.getValue().toString());
-        AppConfig.getInstance().setProperty("db.driver", jtxtDbDriver.getText());
-        AppConfig.getInstance().setProperty("db.URL", jtxtDbURL.getText());
-        AppConfig.getInstance().setProperty("db.user", jtxtDbUser.getText());
-        AltEncrypter cypher = new AltEncrypter("cypherkey" + jtxtDbUser.getText());
-        AppConfig.getInstance().setProperty("db.password", "crypt:" + cypher.encrypt(new String(jtxtDbPassword.getText())));
-        AppConfig.getInstance().setProperty("db.dialect", jtxtDialect.getText());
+        AppConfig config = AppConfig.getInstance();
+        config.setProperty("screen.secondscr", Boolean.toString(jSecondscr.isSelected()));
+        config.setProperty("screen.displaynumber", displayNumber.getValue().toString());
+
+        if (!config.isProvisioned()) {
+            config.setProperty("kylgis.pos.config.enabled", Boolean.toString(jUseKylGisPosConfig.isSelected()));
+            config.setProperty("kylgis.pos.config", jtxtKylGisPosConfig.getText());
+            config.setProperty("db.engine", jcboDBDriver.getValue());
+            config.setProperty("db.driver", jtxtDbDriver.getText());
+            config.setProperty("db.URL", jtxtDbURL.getText());
+            config.setProperty("db.user", jtxtDbUser.getText());
+            AltEncrypter cypher = new AltEncrypter("cypherkey" + jtxtDbUser.getText());
+            config.setProperty("db.password", "crypt:" + cypher.encrypt(new String(jtxtDbPassword.getText())));
+            config.setProperty("db.dialect", jtxtDialect.getText());
+        }
         if (Integer.parseInt(jtxtHeight.getText()) > screenSize.height) {
             jtxtHeight.setText(String.valueOf(screenSize.height));
         }
