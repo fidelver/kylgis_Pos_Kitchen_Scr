@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Optional;
 import javafx.animation.PauseTransition;
 import javafx.application.Application;
+import javafx.application.Platform;
 import static javafx.application.Application.STYLESHEET_MODENA;
 import static javafx.application.Application.setUserAgentStylesheet;
 import javafx.fxml.FXMLLoader;
@@ -75,23 +76,37 @@ public class KitchenScr extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
 
-        try {
-            HibernateUtil.getSessionFactory().openSession();
-        } catch (Exception ex) {
+        boolean databaseReady = HibernateUtil.testConnection();
+        if (!databaseReady) {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Error de base de datos");
             alert.setHeaderText(null);
             alert.setContentText("No fue posible conectar con la base de datos.");
             ButtonType buttonOK = new ButtonType("Aceptar");
             alert.getButtonTypes().setAll(buttonOK);
-            Optional<ButtonType> result = alert.showAndWait();
+            alert.showAndWait();
+
             Stage secondaryStage = new Stage();
-            Parent root = FXMLLoader.load(getClass().getResource("/com/mx/kylgis/kitchenscr/configuration/database.fxml"));
-            secondaryStage.setTitle(AppLocal.APP_NAME + " - Configuración de base de datos - v" + AppLocal.APP_VERSION);
+            Parent root = FXMLLoader.load(getClass().getResource(
+                    "/com/mx/kylgis/kitchenscr/configuration/database.fxml"));
+            secondaryStage.setTitle(AppLocal.APP_NAME
+                    + " - Configuración de base de datos - v" + AppLocal.APP_VERSION);
             applyBrandIcon(secondaryStage);
             secondaryStage.setScene(new Scene(root, 600, 500));
             setUserAgentStylesheet(STYLESHEET_MODENA);
             secondaryStage.showAndWait();
+
+            databaseReady = HibernateUtil.rebuildSessionFactory();
+            if (!databaseReady) {
+                Alert retryAlert = new Alert(Alert.AlertType.ERROR);
+                retryAlert.setTitle("Base de datos no disponible");
+                retryAlert.setHeaderText(null);
+                retryAlert.setContentText(
+                        "La conexión sigue sin estar disponible. El Monitor de Cocina se cerrará sin cargar las comandas.");
+                retryAlert.showAndWait();
+                Platform.exit();
+                return;
+            }
         }
 
         try {

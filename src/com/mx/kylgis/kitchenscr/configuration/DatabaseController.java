@@ -470,30 +470,32 @@ public class DatabaseController implements Initializable {
         
         dirty.resetDirty();
 
-        Boolean error = false;
-        try {
-            HibernateUtil.getSessionFactory().openSession();
-        } catch (Exception ex) {
-            error = true;
+        boolean connected = HibernateUtil.rebuildSessionFactory();
+        if (!connected) {
+            Alert alert = new Alert(AlertType.ERROR);
+            alert.setTitle("Error de conexión");
+            alert.setHeaderText(null);
+            alert.setContentText("La configuración se guardó, pero no fue posible conectar con la base de datos.");
+            alert.showAndWait();
+            return;
         }
-        if (error == false) {
-            String sDBUser = AppConfig.getInstance().getProperty("db.user");
-            String sDBPassword = AppConfig.getInstance().getProperty("db.password");
-            if (sDBUser != null && sDBPassword != null && sDBPassword.startsWith("crypt:")) {
-                cypher = new AltEncrypter("cypherkey" + sDBUser);
-                sDBPassword = cypher.decrypt(sDBPassword.substring(6));
-            }
-            String url = AppConfig.getInstance().getProperty("db.URL");
-            Session session = HibernateUtil.getSessionFactory().openSession();
-            SessionImpl sessionImpl = (SessionImpl) session;
 
+        Session session = null;
+        try {
+            session = HibernateUtil.getSessionFactory().openSession();
+            SessionImpl sessionImpl = (SessionImpl) session;
             Connection connection = sessionImpl.connection();
-            try {
-                String changelog = "com/mx/kylgis/kitchenscr/configuration/kitchentable.xml";
-                Database database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(connection));
-                Liquibase liquibase = new Liquibase(changelog, new ClassLoaderResourceAccessor(), database);
-                liquibase.update("implement");
-            } catch (DatabaseException e) {
+            String changelog = "com/mx/kylgis/kitchenscr/configuration/kitchentable.xml";
+            Database database = DatabaseFactory.getInstance()
+                    .findCorrectDatabaseImplementation(new JdbcConnection(connection));
+            Liquibase liquibase = new Liquibase(
+                    changelog, new ClassLoaderResourceAccessor(), database);
+            liquibase.update("implement");
+        } catch (DatabaseException e) {
+            throw e;
+        } finally {
+            if (session != null && session.isOpen()) {
+                session.close();
             }
         }
 

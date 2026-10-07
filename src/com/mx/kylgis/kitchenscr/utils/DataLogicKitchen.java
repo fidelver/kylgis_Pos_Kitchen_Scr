@@ -28,34 +28,57 @@ import java.util.List;
 import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import com.mx.kylgis.kitchenscr.dto.Orders;
 import com.mx.kylgis.kitchenscr.forms.AppConfig;
 import com.mx.kylgis.kitchenscr.hibernate.HibernateUtil;
 
 public class DataLogicKitchen {
 
-    private Session session;
-    private String sql_query;
-    private Query query;
-
-    public DataLogicKitchen() {
+    private Session openSession() {
+        SessionFactory factory = HibernateUtil.getSessionFactory();
+        if (factory == null || factory.isClosed()) {
+            throw new IllegalStateException("No hay una conexión disponible con la base de datos.");
+        }
+        return factory.openSession();
     }
 
-    public void init() {
-        session = HibernateUtil.getSessionFactory().openSession();
+    private void closeSession(Session currentSession) {
+        if (currentSession != null && currentSession.isOpen()) {
+            currentSession.close();
+        }
+    }
+
+    private void rollback(Transaction transaction) {
+        if (transaction != null) {
+            try {
+                transaction.rollback();
+            } catch (Exception ignored) {
+                // Preserve the original database exception.
+            }
+        }
     }
 
     public List<String> readDistinctOrders() {
+        String sqlQuery;
         if (Boolean.valueOf(AppConfig.getInstance().getProperty("screen.allorders"))) {
-            sql_query = "SELECT DISTINCT ORDERID, ORDERTIME FROM orders ORDER BY ORDERTIME ";
+            sqlQuery = "SELECT DISTINCT ORDERID, ORDERTIME FROM orders ORDER BY ORDERTIME ";
         } else {
-            sql_query = "SELECT DISTINCT ORDERID, ORDERTIME FROM orders WHERE DISPLAYID = " + Integer.parseInt(AppConfig.getInstance().getProperty("screen.displaynumber")) + " ORDER BY ORDERTIME";
+            sqlQuery = "SELECT DISTINCT ORDERID, ORDERTIME FROM orders WHERE DISPLAYID = "
+                    + Integer.parseInt(AppConfig.getInstance().getProperty("screen.displaynumber"))
+                    + " ORDER BY ORDERTIME";
         }
-        SQLQuery query = HibernateUtil.getSessionFactory().openSession().createSQLQuery(sql_query);
-        query.addScalar("ORDERID");
-        List results = query.list();
-        results = new ArrayList<String>(new LinkedHashSet<String>(results));
-        return results;
+
+        Session readSession = openSession();
+        try {
+            SQLQuery currentQuery = readSession.createSQLQuery(sqlQuery);
+            currentQuery.addScalar("ORDERID");
+            List results = currentQuery.list();
+            return new ArrayList<String>(new LinkedHashSet<String>(results));
+        } finally {
+            closeSession(readSession);
+        }
     }
 
     /**
@@ -63,105 +86,143 @@ public class DataLogicKitchen {
      * Orders are returned in their original insertion order inside each send.
      */
     public List<Orders> selectAllOrders() {
+        String sqlQuery;
         if (Boolean.valueOf(AppConfig.getInstance().getProperty("screen.allorders"))) {
-            sql_query = "SELECT * FROM orders ORDER BY ORDERTIME, ID ";
+            sqlQuery = "SELECT * FROM orders ORDER BY ORDERTIME, ID ";
         } else {
-            sql_query = "SELECT * FROM orders WHERE DISPLAYID = "
+            sqlQuery = "SELECT * FROM orders WHERE DISPLAYID = "
                     + Integer.parseInt(AppConfig.getInstance().getProperty("screen.displaynumber"))
                     + " ORDER BY ORDERTIME, ID ";
         }
 
-        SQLQuery query = HibernateUtil.getSessionFactory()
-                .openSession()
-                .createSQLQuery(sql_query);
-
-        query.addEntity(Orders.class);
-
-        List<Orders> results = query.list();
-        return results;
+        Session readSession = openSession();
+        try {
+            SQLQuery currentQuery = readSession.createSQLQuery(sqlQuery);
+            currentQuery.addEntity(Orders.class);
+            return currentQuery.list();
+        } finally {
+            closeSession(readSession);
+        }
     }
 
     public void removeOrder(java.sql.Timestamp completetime) {
-        init();
-        session.beginTransaction();
+        Session writeSession = null;
+        Transaction transaction = null;
+        try {
+            writeSession = openSession();
+            transaction = writeSession.beginTransaction();
 
-        String sql = "DELETE FROM orders WHERE COMPLETETIME = :completetime "
-                + "AND DISPLAYID = :display";
-
-        SQLQuery query = session.createSQLQuery(sql);
-
-        query.setParameter("completetime",
-                new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS")
-                        .format(completetime));
-        query.setParameter("display",
-                Integer.parseInt(
-                        AppConfig.getInstance().getProperty("screen.displaynumber")));
-
-        query.executeUpdate();
-
-        session.getTransaction().commit();
-        session.close();
+            String sql = "DELETE FROM orders WHERE COMPLETETIME = :completetime "
+                    + "AND DISPLAYID = :display";
+            SQLQuery currentQuery = writeSession.createSQLQuery(sql);
+            currentQuery.setParameter("completetime",
+                    new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS")
+                            .format(completetime));
+            currentQuery.setParameter("display",
+                    Integer.parseInt(AppConfig.getInstance().getProperty("screen.displaynumber")));
+            currentQuery.executeUpdate();
+            transaction.commit();
+        } catch (RuntimeException ex) {
+            rollback(transaction);
+            throw ex;
+        } finally {
+            closeSession(writeSession);
+        }
     }
 
     public void removeAllOrders() {
-        init();
-        session.beginTransaction();
-        Query query = session.createQuery("DELETE FROM ORDERS ");
-        int result = query.executeUpdate();
-        session.getTransaction().commit();
-        session.close();
+        Session writeSession = null;
+        Transaction transaction = null;
+        try {
+            writeSession = openSession();
+            transaction = writeSession.beginTransaction();
+            Query currentQuery = writeSession.createQuery("DELETE FROM ORDERS ");
+            currentQuery.executeUpdate();
+            transaction.commit();
+        } catch (RuntimeException ex) {
+            rollback(transaction);
+            throw ex;
+        } finally {
+            closeSession(writeSession);
+        }
     }
-    
+
     /**
-     * Remove all orders for current display only
+     * Remove all orders for current display only.
      */
     public void removeAllOrdersDisplay() {
-        init();
-        session.beginTransaction();
-        Query query = session.createQuery("DELETE FROM ORDERS WHERE DISPLAYID = :display");
-        query.setParameter("display", Integer.parseInt(AppConfig.getInstance().getProperty("screen.displaynumber")));
-        int result = query.executeUpdate();
-        session.getTransaction().commit();
-        session.close();
+        Session writeSession = null;
+        Transaction transaction = null;
+        try {
+            writeSession = openSession();
+            transaction = writeSession.beginTransaction();
+            Query currentQuery = writeSession.createQuery(
+                    "DELETE FROM ORDERS WHERE DISPLAYID = :display");
+            currentQuery.setParameter("display",
+                    Integer.parseInt(AppConfig.getInstance().getProperty("screen.displaynumber")));
+            currentQuery.executeUpdate();
+            transaction.commit();
+        } catch (RuntimeException ex) {
+            rollback(transaction);
+            throw ex;
+        } finally {
+            closeSession(writeSession);
+        }
     }
 
     public List<Orders> selectByOrderId(String orderid) {
+        String sqlQuery;
         if (Boolean.valueOf(AppConfig.getInstance().getProperty("screen.allorders"))) {
-            sql_query = "SELECT * FROM orders WHERE ORDERID ='" + orderid + "' ORDER BY ID ";
+            sqlQuery = "SELECT * FROM orders WHERE ORDERID = :orderid ORDER BY ID ";
         } else {
-            sql_query = "SELECT * FROM orders WHERE ORDERID ='" + orderid + "' AND DISPLAYID = " + Integer.parseInt(AppConfig.getInstance().getProperty("screen.displaynumber")) + " ORDER BY ID ";
+            sqlQuery = "SELECT * FROM orders WHERE ORDERID = :orderid AND DISPLAYID = :display ORDER BY ID ";
         }
 
-        SQLQuery query = HibernateUtil.getSessionFactory().openSession().createSQLQuery(sql_query);
-        query.addEntity(Orders.class);
-        List<Orders> results = query.list();
-        return results;
+        Session readSession = openSession();
+        try {
+            SQLQuery currentQuery = readSession.createSQLQuery(sqlQuery);
+            currentQuery.setParameter("orderid", orderid);
+            if (!Boolean.valueOf(AppConfig.getInstance().getProperty("screen.allorders"))) {
+                currentQuery.setParameter("display",
+                        Integer.parseInt(AppConfig.getInstance().getProperty("screen.displaynumber")));
+            }
+            currentQuery.addEntity(Orders.class);
+            return currentQuery.list();
+        } finally {
+            closeSession(readSession);
+        }
     }
-	 
-	 
-	 /* N Deppe Sept 2015 - Added to be able to create new order records for recall function */
-	 public void createOrder(Orders orderData) {
-		sql_query = "INSERT INTO orders (ORDERID, QTY, DETAILS, ATTRIBUTES, NOTES, TICKETID, ORDERTIME, DISPLAYID, AUXILIARY, COMPLETETIME)"
-					  + " VALUES ( :orderid, :qty, :details, :attributes, :notes, :ticketid, :ordertime, :displayid, :auxiliaryid, :completetime )";
-		init();
-		session.beginTransaction();
-		query = session.createSQLQuery(sql_query);
-		query.setParameter("orderid", orderData.getOrderid());
-		query.setParameter("qty", orderData.getQty());
-		query.setParameter("details", orderData.getDetails());
-		query.setParameter("attributes", orderData.getAttributes());
-		query.setParameter("notes", orderData.getNotes());
-		query.setParameter("ticketid", orderData.getTicketid());
-		query.setParameter("ordertime", orderData.getOrdertime());
-		query.setParameter("displayid", orderData.getDisplayid());
-                query.setParameter("auxiliaryid", orderData.getAuxiliary());
-                query.setParameter("completetime",
-                        new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS")
-                                .format(orderData.getCompletetime()));
-		int result = query.executeUpdate();
-		session.getTransaction().commit();
-		session.close();		 
-	}
-	 
 
+    /* N Deppe Sept 2015 - Added to be able to create new order records for recall function */
+    public void createOrder(Orders orderData) {
+        Session writeSession = null;
+        Transaction transaction = null;
+        try {
+            writeSession = openSession();
+            transaction = writeSession.beginTransaction();
+
+            String sqlQuery = "INSERT INTO orders (ORDERID, QTY, DETAILS, ATTRIBUTES, NOTES, TICKETID, ORDERTIME, DISPLAYID, AUXILIARY, COMPLETETIME)"
+                    + " VALUES ( :orderid, :qty, :details, :attributes, :notes, :ticketid, :ordertime, :displayid, :auxiliaryid, :completetime )";
+            Query currentQuery = writeSession.createSQLQuery(sqlQuery);
+            currentQuery.setParameter("orderid", orderData.getOrderid());
+            currentQuery.setParameter("qty", orderData.getQty());
+            currentQuery.setParameter("details", orderData.getDetails());
+            currentQuery.setParameter("attributes", orderData.getAttributes());
+            currentQuery.setParameter("notes", orderData.getNotes());
+            currentQuery.setParameter("ticketid", orderData.getTicketid());
+            currentQuery.setParameter("ordertime", orderData.getOrdertime());
+            currentQuery.setParameter("displayid", orderData.getDisplayid());
+            currentQuery.setParameter("auxiliaryid", orderData.getAuxiliary());
+            currentQuery.setParameter("completetime",
+                    new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS")
+                            .format(orderData.getCompletetime()));
+            currentQuery.executeUpdate();
+            transaction.commit();
+        } catch (RuntimeException ex) {
+            rollback(transaction);
+            throw ex;
+        } finally {
+            closeSession(writeSession);
+        }
+    }
 }

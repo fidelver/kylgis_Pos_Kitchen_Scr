@@ -447,10 +447,17 @@ public class KitchenscrController implements Initializable {
 
     private void buildOrderPanels() {
 
-        resetItemDisplays();
+        // Load first. If the database is temporarily unavailable, keep the
+        // current screen intact and retry on the next refresh cycle.
+        List<Orders> allOrders;
+        try {
+            allOrders = dl_kitchen.selectAllOrders();
+        } catch (RuntimeException ex) {
+            System.err.println("No fue posible actualizar las comandas: " + ex.getMessage());
+            return;
+        }
 
-        // Load all orders for the current display with a single database query.
-        List<Orders> allOrders = dl_kitchen.selectAllOrders();
+        resetItemDisplays();
 
         // Each COMPLETETIME identifies one separate send to the kitchen.
         // Preserve database order so the oldest sends remain first.

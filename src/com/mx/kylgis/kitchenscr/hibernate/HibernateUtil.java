@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.util.Properties;
 import java.sql.SQLException;
 import org.hibernate.HibernateException;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
@@ -142,23 +143,85 @@ public class HibernateUtil {
          */
         //configuration.setProperty("hibernate.hbm2ddl.auto", "update");
         configuration.setProperty("hibernate.show_sql", "true");
-        configuration.setProperty("hibernate.connection.pool_size", "5");
+        // El monitor ejecuta consultas cortas y secuenciales; dos conexiones son suficientes.
+        configuration.setProperty("hibernate.connection.pool_size", "2");
 
         configuration.addAnnotatedClass(Orders.class);
 
-        serviceRegistry = new StandardServiceRegistryBuilder().applySettings(configuration.getProperties()).build();
+        serviceRegistry = new StandardServiceRegistryBuilder()
+                .applySettings(configuration.getProperties())
+                .build();
         try {
-            sessionFactory = configuration.buildSessionFactory(serviceRegistry);
+            return configuration.buildSessionFactory(serviceRegistry);
         } catch (Exception ex) {
             ex.printStackTrace();
+            if (serviceRegistry != null) {
+                try {
+                    StandardServiceRegistryBuilder.destroy(serviceRegistry);
+                } catch (Exception ignored) {
+                    // Preserve the original connection error.
+                }
+                serviceRegistry = null;
+            }
             return null;
         }
-
-        return sessionFactory;
-
     }
 
-    public static SessionFactory getSessionFactory() {
+    public static synchronized SessionFactory getSessionFactory() {
         return sessionFactory;
+    }
+
+    /**
+     * Opens and closes a short-lived session to verify that the configured
+     * database is actually reachable without leaking a pooled connection.
+     */
+    public static synchronized boolean testConnection() {
+        if (sessionFactory == null || sessionFactory.isClosed()) {
+            return false;
+        }
+
+        Session testSession = null;
+        try {
+            testSession = sessionFactory.openSession();
+            return true;
+        } catch (Exception ex) {
+            return false;
+        } finally {
+            if (testSession != null && testSession.isOpen()) {
+                testSession.close();
+            }
+        }
+    }
+
+    /**
+     * Rebuilds Hibernate after configuration changes or a transient startup
+     * failure. The previous factory and registry are released first.
+     */
+    public static synchronized boolean rebuildSessionFactory() {
+        shutdown();
+        sessionFactory = buildSessionFactory();
+        return testConnection();
+    }
+
+    public static synchronized void shutdown() {
+        if (sessionFactory != null) {
+            try {
+                if (!sessionFactory.isClosed()) {
+                    sessionFactory.close();
+                }
+            } catch (Exception ignored) {
+                // Continue releasing the registry.
+            }
+            sessionFactory = null;
+        }
+
+        if (serviceRegistry != null) {
+            try {
+                StandardServiceRegistryBuilder.destroy(serviceRegistry);
+            } catch (Exception ignored) {
+                // Nothing else to release here.
+            }
+            serviceRegistry = null;
+        }
     }
 }
