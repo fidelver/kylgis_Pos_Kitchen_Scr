@@ -1,25 +1,23 @@
 /*
- Chromis POS  - The New Face of Open Source POS
- Copyright (c) 2015 (John Lewis) Chromis.co.uk
+ KylGis Kitchen Screen
+ Modifications Copyright (c) 2026 KylGis
+ Portions Copyright (c) 2015 John Lewis / Chromis
 
- http://www.chromis.co.uk
+ Based on Chromis Kitchen Screen. Upstream attribution is retained under the
+ GNU General Public License, version 3 or (at your option) any later version.
 
- kitchen Screen v1.5
-
- This file is part of chromis & its associated programs
-
- chromis is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
+ KylGis Kitchen Screen is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by the
+ Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
 
- chromis is distributed in the hope that it will be useful,
+ KylGis Kitchen Screen is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with chromis.  If not, see <http://www.gnu.org/licenses/>.
+ along with KylGis Kitchen Screen. If not, see <http://www.gnu.org/licenses/>.
  */
 
 package com.mx.kylgis.kitchenscr.configuration;
@@ -85,9 +83,9 @@ public class DatabaseController implements Initializable {
     public TextField jtxtClockFormat;
     public Spinner historyCount;
     public CheckBox jSecondscr;
-    public CheckBox jUseUnicentaConfig;
-    public TextField jtxtUnicentaConfig;
-    public Button btnUnicentaBrowse;
+    public CheckBox jUseKylGisPosConfig;
+    public TextField jtxtKylGisPosConfig;
+    public Button btnKylGisPosBrowse;
     
     private final DirtyManager dirty = new DirtyManager();
     private String display;
@@ -162,41 +160,41 @@ public class DatabaseController implements Initializable {
         jtxtMapRecall.textProperty().addListener(dirty);
         jtxtMapExit.textProperty().addListener(dirty);        
         jSecondscr.selectedProperty().addListener(dirty);
-        jUseUnicentaConfig.selectedProperty().addListener(dirty);
-        jtxtUnicentaConfig.textProperty().addListener(dirty);
+        jUseKylGisPosConfig.selectedProperty().addListener(dirty);
+        jtxtKylGisPosConfig.textProperty().addListener(dirty);
 
-        jUseUnicentaConfig.selectedProperty().addListener((obs, oldValue, newValue) -> {
-            updateUnicentaConfigControls();
+        jUseKylGisPosConfig.selectedProperty().addListener((obs, oldValue, newValue) -> {
+            updateKylGisPosConfigControls();
         });
 
-        btnUnicentaBrowse.setOnAction(e -> handleUnicentaBrowse());
+        btnKylGisPosBrowse.setOnAction(e -> handleKylGisPosBrowse());
 
         jcboDBDriver.setOnAction(e -> {
             if ("Apache Derby Client/Server".equals(jcboDBDriver.getValue())) {
                 displayNumber.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 9, 1));
                 jtxtDbDriver.setText("org.apache.derby.jdbc.ClientDriver");
-                jtxtDbURL.setText("jdbc:derby://localhost:1527/chromispos");
+                jtxtDbURL.setText("jdbc:derby://localhost:1527/kylgis");
                 jtxtDbUser.setText("");
                 jtxtDbPassword.setText("");
                 jtxtDialect.setText("org.hibernate.dialect.DerbyDialect");
             } else if ("MySQL".equals(jcboDBDriver.getValue())) {
                 displayNumber.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 9, 1));
                 jtxtDbDriver.setText("com.mysql.jdbc.Driver");
-                jtxtDbURL.setText("jdbc:mysql://localhost:3306/chromispos");
+                jtxtDbURL.setText("jdbc:mysql://localhost:3306/kylgis");
                 jtxtDbUser.setText("");
                 jtxtDbPassword.setText("");
                 jtxtDialect.setText("org.hibernate.dialect.MySQLDialect");
             } else if ("Oracle 11g Express".equals(jcboDBDriver.getValue())) {
                 displayNumber.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 9, 1));
                 jtxtDbDriver.setText("oracle.jdbc.driver.OracleDriver");
-                jtxtDbURL.setText("jdbc:oracle:thin://localhost:1521/chromispos");
+                jtxtDbURL.setText("jdbc:oracle:thin://localhost:1521/kylgis");
                 jtxtDbUser.setText("");
                 jtxtDbPassword.setText("");
                 jtxtDialect.setText("org.hibernate.dialect.OracleDialect");
             } else if ("PostgreSQL".equals(jcboDBDriver.getValue())) {
                 displayNumber.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 9, 1));
                 jtxtDbDriver.setText("org.postgresql.Driver");
-                jtxtDbURL.setText("jdbc:postgresql://localhost:5432/chromispos");
+                jtxtDbURL.setText("jdbc:postgresql://localhost:5432/kylgis");
                 jtxtDbUser.setText("");
                 jtxtDbPassword.setText("");
                 jtxtDialect.setText("org.hibernate.dialect.PostgreSQLDialect");
@@ -365,40 +363,40 @@ public class DatabaseController implements Initializable {
         jtxtMapRecall.setKeyCodeCombination(keyComboRecall);
         jtxtMapExit.setKeyCodeCombination(keyComboExit);
         
-        String unicentaConfig = AppConfig.getInstance().getProperty("unicenta.config");
-        String unicentaConfigEnabled = AppConfig.getInstance().getProperty("unicenta.config.enabled");
+        String kylgisPosConfig = AppConfig.getInstance().getProperty("kylgis.pos.config");
+        String kylgisPosConfigEnabled = AppConfig.getInstance().getProperty("kylgis.pos.config.enabled");
 
-        jtxtUnicentaConfig.setText(
-                unicentaConfig == null ? "" : unicentaConfig);
+        jtxtKylGisPosConfig.setText(
+                kylgisPosConfig == null ? "" : kylgisPosConfig);
 
-        jUseUnicentaConfig.setSelected(
-                Boolean.parseBoolean(unicentaConfigEnabled));
+        jUseKylGisPosConfig.setSelected(
+                Boolean.parseBoolean(kylgisPosConfigEnabled));
 
-        updateUnicentaConfigControls();
+        updateKylGisPosConfigControls();
 
         dirty.resetDirty();
         
     }
 
-    private void updateUnicentaConfigControls() {
-        boolean useUnicenta = jUseUnicentaConfig.isSelected();
+    private void updateKylGisPosConfigControls() {
+        boolean useKylGisPos = jUseKylGisPosConfig.isSelected();
 
-        // Cuando se usa uniCenta, los datos manuales de BBDD quedan bloqueados.
-        jcboDBDriver.setDisable(useUnicenta);
-        jtxtDbDriver.setDisable(useUnicenta);
-        jtxtDbURL.setDisable(useUnicenta);
-        jtxtDbUser.setDisable(useUnicenta);
-        jtxtDbPassword.setDisable(useUnicenta);
-        jtxtDialect.setDisable(useUnicenta);
+        // Cuando se usa KylGis POS, los datos manuales de BBDD quedan bloqueados.
+        jcboDBDriver.setDisable(useKylGisPos);
+        jtxtDbDriver.setDisable(useKylGisPos);
+        jtxtDbURL.setDisable(useKylGisPos);
+        jtxtDbUser.setDisable(useKylGisPos);
+        jtxtDbPassword.setDisable(useKylGisPos);
+        jtxtDialect.setDisable(useKylGisPos);
 
-        // La ruta y el botón solo están disponibles cuando se usa uniCenta.
-        jtxtUnicentaConfig.setDisable(!useUnicenta);
-        btnUnicentaBrowse.setDisable(!useUnicenta);
+        // La ruta y el botón solo están disponibles cuando se usa KylGis POS.
+        jtxtKylGisPosConfig.setDisable(!useKylGisPos);
+        btnKylGisPosBrowse.setDisable(!useKylGisPos);
     }
 
-    private void handleUnicentaBrowse() {
+    private void handleKylGisPosBrowse() {
         FileChooser chooser = new FileChooser();
-        chooser.setTitle("Select uniCenta properties file");
+        chooser.setTitle("Select KylGis POS properties file");
         chooser.getExtensionFilters().add(
                 new FileChooser.ExtensionFilter(
                         "Properties files", "*.properties"));
@@ -406,7 +404,7 @@ public class DatabaseController implements Initializable {
                 new FileChooser.ExtensionFilter(
                         "All files", "*.*"));
 
-        String currentPath = jtxtUnicentaConfig.getText();
+        String currentPath = jtxtKylGisPosConfig.getText();
 
         if (currentPath != null && !currentPath.trim().isEmpty()) {
             File currentFile = new File(currentPath.trim());
@@ -417,17 +415,17 @@ public class DatabaseController implements Initializable {
             }
         }
 
-        File selectedFile = chooser.showOpenDialog(btnUnicentaBrowse.getScene().getWindow());
+        File selectedFile = chooser.showOpenDialog(btnKylGisPosBrowse.getScene().getWindow());
 
         if (selectedFile != null) {
-            jtxtUnicentaConfig.setText(selectedFile.getAbsolutePath());
+            jtxtKylGisPosConfig.setText(selectedFile.getAbsolutePath());
         }
     }
 
     public void handleSaveClick() throws IOException, LiquibaseException {
         AppConfig.getInstance().setProperty("screen.secondscr", Boolean.toString(jSecondscr.isSelected()));
-        AppConfig.getInstance().setProperty("unicenta.config.enabled", Boolean.toString(jUseUnicentaConfig.isSelected()));
-        AppConfig.getInstance().setProperty("unicenta.config", jtxtUnicentaConfig.getText());
+        AppConfig.getInstance().setProperty("kylgis.pos.config.enabled", Boolean.toString(jUseKylGisPosConfig.isSelected()));
+        AppConfig.getInstance().setProperty("kylgis.pos.config", jtxtKylGisPosConfig.getText());
         AppConfig.getInstance().setProperty("db.engine", jcboDBDriver.getValue());
         AppConfig.getInstance().setProperty("screen.displaynumber", displayNumber.getValue().toString());
         AppConfig.getInstance().setProperty("db.driver", jtxtDbDriver.getText());

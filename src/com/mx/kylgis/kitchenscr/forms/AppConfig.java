@@ -1,25 +1,23 @@
 /*
- Chromis POS  - The New Face of Open Source POS
- Copyright (c) 2015 (John Lewis) Chromis.co.uk
+ KylGis Kitchen Screen
+ Modifications Copyright (c) 2026 KylGis
+ Portions Copyright (c) 2015 John Lewis / Chromis
 
- http://www.chromis.co.uk
+ Based on Chromis Kitchen Screen. Upstream attribution is retained under the
+ GNU General Public License, version 3 or (at your option) any later version.
 
- kitchen Screen v1.5
-
- This file is part of chromis & its associated programs
-
- chromis is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
+ KylGis Kitchen Screen is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by the
+ Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
 
- chromis is distributed in the hope that it will be useful,
+ KylGis Kitchen Screen is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with chromis.  If not, see <http://www.gnu.org/licenses/>.
+ along with KylGis Kitchen Screen. If not, see <http://www.gnu.org/licenses/>.
  */
 
 package com.mx.kylgis.kitchenscr.forms;
@@ -63,6 +61,10 @@ public class AppConfig {
         return new File(new File(System.getProperty("user.home")), AppLocal.APP_ID + ".properties");
     }
 
+    private File getLegacyConfig() {
+        return new File(new File(System.getProperty("user.home")), AppLocal.LEGACY_APP_ID + ".properties");
+    }
+
     public String getDirPath() {
         String dirname = System.getProperty("dirname.path");
         return (dirname == null ? "./" : dirname);
@@ -87,14 +89,33 @@ public class AppConfig {
 
     public void load() {
         loadDefault();
-        try {
-            InputStream in = new FileInputStream(configFile);
-            if (in != null) {
-                m_propsconfig.load(in);
-                in.close();
+        File source = configFile.isFile() ? configFile : getLegacyConfig();
+        try (InputStream in = new FileInputStream(source)) {
+            m_propsconfig.load(in);
+            migrateLegacyProperties();
+
+            if (!configFile.isFile() && source.equals(getLegacyConfig())) {
+                logger.log(Level.INFO,
+                        "Migrating legacy Kitchen Screen configuration to: {0}",
+                        configFile.getAbsolutePath());
+                save();
             }
         } catch (IOException e) {
-            loadDefault();
+            migrateLegacyProperties();
+        }
+    }
+
+    private void migrateLegacyProperties() {
+        migrateProperty("unicenta.config.enabled", "kylgis.pos.config.enabled");
+        migrateProperty("unicenta.config", "kylgis.pos.config");
+        m_propsconfig.remove("unicenta.config.enabled");
+        m_propsconfig.remove("unicenta.config");
+    }
+
+    private void migrateProperty(String legacyKey, String newKey) {
+        if (m_propsconfig.getProperty(newKey) == null
+                && m_propsconfig.getProperty(legacyKey) != null) {
+            m_propsconfig.setProperty(newKey, m_propsconfig.getProperty(legacyKey));
         }
     }
 
@@ -109,7 +130,7 @@ public class AppConfig {
     private void loadDefault() {
         m_propsconfig.setProperty("db.engine", "MySql");
         m_propsconfig.setProperty("db.driver", "com.mysql.jdbc.Driver");
-        m_propsconfig.setProperty("db.URL", "jdbc:mysql://localhost:3306/unicentaopos");
+        m_propsconfig.setProperty("db.URL", "jdbc:mysql://localhost:3306/kylgis");
         m_propsconfig.setProperty("db.user", "");
         m_propsconfig.setProperty("db.password", "");
         m_propsconfig.setProperty("screen.displaynumber", "1");

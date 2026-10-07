@@ -1,25 +1,23 @@
 /*
- Chromis POS  - The New Face of Open Source POS
- Copyright (c) 2015 (John Lewis) Chromis.co.uk
+ KylGis Kitchen Screen
+ Modifications Copyright (c) 2026 KylGis
+ Portions Copyright (c) 2015 John Lewis / Chromis
 
- http://www.chromis.co.uk
+ Based on Chromis Kitchen Screen. Upstream attribution is retained under the
+ GNU General Public License, version 3 or (at your option) any later version.
 
- kitchen Screen v1.5
-
- This file is part of chromis & its associated programs
-
- chromis is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
+ KylGis Kitchen Screen is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by the
+ Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
 
- chromis is distributed in the hope that it will be useful,
+ KylGis Kitchen Screen is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with chromis.  If not, see <http://www.gnu.org/licenses/>.
+ along with KylGis Kitchen Screen. If not, see <http://www.gnu.org/licenses/>.
  */
 package com.mx.kylgis.kitchenscr;
 

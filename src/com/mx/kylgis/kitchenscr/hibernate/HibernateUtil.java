@@ -1,25 +1,23 @@
 /*
- Chromis POS  - The New Face of Open Source POS
- Copyright (c) 2015 (John Lewis) Chromis.co.uk
+ KylGis Kitchen Screen
+ Modifications Copyright (c) 2026 KylGis
+ Portions Copyright (c) 2015 John Lewis / Chromis
 
- http://www.chromis.co.uk
+ Based on Chromis Kitchen Screen. Upstream attribution is retained under the
+ GNU General Public License, version 3 or (at your option) any later version.
 
- kitchen Screen v1.5
-
- This file is part of chromis & its associated programs
-
- chromis is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
+ KylGis Kitchen Screen is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by the
+ Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
 
- chromis is distributed in the hope that it will be useful,
+ KylGis Kitchen Screen is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with chromis.  If not, see <http://www.gnu.org/licenses/>.
+ along with KylGis Kitchen Screen. If not, see <http://www.gnu.org/licenses/>.
  */
 
 package com.mx.kylgis.kitchenscr.hibernate;
@@ -54,60 +52,60 @@ public class HibernateUtil {
         String sDBPassword = appConfig.getProperty("db.password");
         String sDBDialect = appConfig.getProperty("db.dialect");
 
-        boolean useUnicentaConfig = Boolean.parseBoolean(
-                appConfig.getProperty("unicenta.config.enabled"));
+        boolean useKylGisPosConfig = Boolean.parseBoolean(
+                appConfig.getProperty("kylgis.pos.config.enabled"));
 
-        if (useUnicentaConfig) {
-            String unicentaConfigPath =
-                    appConfig.getProperty("unicenta.config");
+        if (useKylGisPosConfig) {
+            String kylgisPosConfigPath =
+                    appConfig.getProperty("kylgis.pos.config");
 
-            if (unicentaConfigPath == null
-                    || unicentaConfigPath.trim().isEmpty()) {
+            if (kylgisPosConfigPath == null
+                    || kylgisPosConfigPath.trim().isEmpty()) {
                 throw new IllegalStateException(
-                        "uniCenta configuration is enabled but no properties file was specified.");
+                        "KylGis POS configuration is enabled but no properties file was specified.");
             }
 
-            File unicentaFile = new File(unicentaConfigPath.trim());
+            File kylgisPosFile = new File(kylgisPosConfigPath.trim());
 
-            if (!unicentaFile.isFile()) {
+            if (!kylgisPosFile.isFile()) {
                 throw new IllegalStateException(
-                        "uniCenta properties file not found: "
-                        + unicentaFile.getAbsolutePath());
+                        "KylGis POS properties file not found: "
+                        + kylgisPosFile.getAbsolutePath());
             }
 
-            Properties unicentaProps = new Properties();
+            Properties kylgisPosProps = new Properties();
 
             try (FileInputStream input =
-                    new FileInputStream(unicentaFile)) {
-                unicentaProps.load(input);
+                    new FileInputStream(kylgisPosFile)) {
+                kylgisPosProps.load(input);
             } catch (IOException ex) {
                 throw new IllegalStateException(
-                        "Could not read uniCenta properties file: "
-                        + unicentaFile.getAbsolutePath(), ex);
+                        "Could not read KylGis POS properties file: "
+                        + kylgisPosFile.getAbsolutePath(), ex);
             }
 
-            sDBDriver = unicentaProps.getProperty("db.driver", sDBDriver);
-            sDBUser = unicentaProps.getProperty("db.user", sDBUser);
-            sDBPassword = unicentaProps.getProperty("db.password", sDBPassword);
+            sDBDriver = kylgisPosProps.getProperty("db.driver", sDBDriver);
+            sDBUser = kylgisPosProps.getProperty("db.user", sDBUser);
+            sDBPassword = kylgisPosProps.getProperty("db.password", sDBPassword);
 
-            String baseURL = unicentaProps.getProperty("db.URL", "");
-            String schema = unicentaProps.getProperty("db.schema", "");
-            String options = unicentaProps.getProperty("db.options", "");
+            String baseURL = kylgisPosProps.getProperty("db.URL", "");
+            String schema = kylgisPosProps.getProperty("db.schema", "");
+            String options = kylgisPosProps.getProperty("db.options", "");
 
             if (baseURL.isEmpty()) {
                 throw new IllegalStateException(
-                        "uniCenta properties file does not contain db.URL.");
+                        "KylGis POS properties file does not contain db.URL.");
             }
 
             sDBURL = baseURL + schema + options;
 
             System.out.println(
-                    "Using uniCenta configuration: "
-                    + unicentaFile.getAbsolutePath());
+                    "Using KylGis POS configuration: "
+                    + kylgisPosFile.getAbsolutePath());
             System.out.println(
-                    "uniCenta database URL: " + sDBURL);
+                    "KylGis POS database URL: " + sDBURL);
             System.out.println(
-                    "uniCenta database user: " + sDBUser);
+                    "KylGis POS database user: " + sDBUser);
         }
 
         if (sDBUser != null && sDBPassword != null

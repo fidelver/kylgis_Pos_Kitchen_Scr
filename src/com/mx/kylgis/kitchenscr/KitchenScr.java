@@ -1,25 +1,23 @@
 /*
- Chromis POS  - The New Face of Open Source POS
- Copyright (c) 2015 (John Lewis) Chromis.co.uk
+ KylGis Kitchen Screen
+ Modifications Copyright (c) 2026 KylGis
+ Portions Copyright (c) 2015 John Lewis / Chromis
 
- http://www.chromis.co.uk
+ Based on Chromis Kitchen Screen. Upstream attribution is retained under the
+ GNU General Public License, version 3 or (at your option) any later version.
 
- kitchen Screen v1.5
-
- This file is part of chromis & its associated programs
-
- chromis is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
+ KylGis Kitchen Screen is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by the
+ Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
 
- chromis is distributed in the hope that it will be useful,
+ KylGis Kitchen Screen is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with chromis.  If not, see <http://www.gnu.org/licenses/>.
+ along with KylGis Kitchen Screen. If not, see <http://www.gnu.org/licenses/>.
  */
 package com.mx.kylgis.kitchenscr;
 
@@ -37,6 +35,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Modality;
 import javafx.stage.Screen;
@@ -86,7 +85,8 @@ public class KitchenScr extends Application {
             Optional<ButtonType> result = alert.showAndWait();
             Stage secondaryStage = new Stage();
             Parent root = FXMLLoader.load(getClass().getResource("/com/mx/kylgis/kitchenscr/configuration/database.fxml"));
-            secondaryStage.setTitle("Database Configuration - v" + AppLocal.APP_VERSION);
+            secondaryStage.setTitle(AppLocal.APP_NAME + " - Database Configuration - v" + AppLocal.APP_VERSION);
+            applyBrandIcon(secondaryStage);
             secondaryStage.setScene(new Scene(root, 600, 500));
             setUserAgentStylesheet(STYLESHEET_MODENA);
             secondaryStage.showAndWait();
@@ -140,9 +140,11 @@ public class KitchenScr extends Application {
                 Screen secondaryScreen = allScreens.get(1);
                 javafx.geometry.Rectangle2D bounds = secondaryScreen.getVisualBounds();
                 Stage stage = new Stage();
+                stage.setTitle(AppLocal.APP_NAME);
                 stage.setX(bounds.getMinX());
                 stage.setY(bounds.getMinY());
                 stage.setScene(myScene);
+                applyBrandIcon(stage);
                 myController.setScene(myScene);
                 stage.initStyle(StageStyle.UNDECORATED);
                 stage.initModality(Modality.APPLICATION_MODAL);
@@ -150,16 +152,19 @@ public class KitchenScr extends Application {
 
             } else {
                 Stage stage = new Stage();
+                stage.setTitle(AppLocal.APP_NAME);
                 stage.setX(scrXpos);
                 stage.setY(scrYpos);
                 stage.setScene(myScene);
+                applyBrandIcon(stage);
                 myController.setScene(myScene);
                 stage.initStyle(StageStyle.UNDECORATED);
                 stage.initModality(Modality.APPLICATION_MODAL);
                 publicStage = stage;
             }
         } else {
-            primaryStage.setTitle("Kitchen Orders");
+            primaryStage.setTitle(AppLocal.APP_NAME);
+            applyBrandIcon(primaryStage);
             primaryStage.setX(scrXpos);
             primaryStage.setY(scrYpos);
             primaryStage.setScene(myScene);
@@ -171,7 +176,8 @@ public class KitchenScr extends Application {
         // Aviso de acceso a configuración durante el arranque.
         // KitchenScreen no se muestra hasta que termina este aviso.
         Stage startupConfigStage = new Stage();
-        startupConfigStage.setTitle("Kitchen Screen");
+        startupConfigStage.setTitle(AppLocal.APP_NAME);
+        applyBrandIcon(startupConfigStage);
 
         Label startupConfigLabel = new Label(
                 "Presiona F12 para entrar a configuración");
@@ -213,7 +219,8 @@ public class KitchenScr extends Application {
                             getClass().getResource(
                                     "/com/mx/kylgis/kitchenscr/configuration/database.fxml"));
                     secondaryStage.setTitle(
-                            "Database Configuration - v" + AppLocal.APP_VERSION);
+                            AppLocal.APP_NAME + " - Database Configuration - v" + AppLocal.APP_VERSION);
+                    applyBrandIcon(secondaryStage);
                     secondaryStage.setScene(
                             new Scene(configRoot, 600, 500));
                     setUserAgentStylesheet(STYLESHEET_MODENA);
@@ -247,5 +254,17 @@ public class KitchenScr extends Application {
         });
 
         startupConfigTimer.play();
+    }
+    private void applyBrandIcon(Stage stage) {
+        try {
+            java.io.InputStream iconStream = getClass().getResourceAsStream(
+                    "/com/mx/kylgis/kitchenscr/images/kylgis_icon.png");
+            if (iconStream != null) {
+                stage.getIcons().add(new Image(iconStream));
+                iconStream.close();
+            }
+        } catch (Exception ignored) {
+            // Branding icon must never prevent Kitchen Screen from starting.
+        }
     }
 }
