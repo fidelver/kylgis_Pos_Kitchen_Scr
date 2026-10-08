@@ -1,13 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- You may freely edit this file. See commented blocks below for -->
-<!-- some examples of how to customize the build. -->
-<!-- (If you delete it and reopen the project it will be recreated.) -->
-<!-- By default, only the Clean and Build commands use this build script. -->
-<!-- Commands such as Run, Debug, and Test only use this build script if -->
-<!-- the Compile on Save feature is turned off for the project. -->
-<!-- You can turn off the Compile on Save (or Deploy on Save) setting -->
-<!-- in the project's Project Properties dialog box.-->
 <project name="kylgis_POS_Kitchen_Scr" default="default" basedir=".">
     <description>Builds, tests, and runs the project kylgis_POS_Kitchen_Scr.</description>
     <import file="nbproject/build-impl.xml"/>
+
+    <!-- Runtime SPI bridge: compiled separately so the normal KitchenScreen
+         sources remain independent from the POS implementation classes. -->
+    <target name="-post-compile">
+        <javac srcdir="src-runtime" destdir="${build.classes.dir}"
+               source="1.8" target="1.8" encoding="UTF-8" includeantruntime="false">
+            <classpath>
+                <pathelement location="${build.classes.dir}"/>
+                <pathelement location="../kylgis_Pos/target/kylgispos.jar"/>
+                <path path="${javac.classpath}"/>
+            </classpath>
+            <exclude name="META-INF/**"/>
+        </javac>
+        <copy todir="${build.classes.dir}/META-INF/services">
+            <fileset dir="src-runtime/META-INF/services"/>
+        </copy>
+    </target>
 </project>
