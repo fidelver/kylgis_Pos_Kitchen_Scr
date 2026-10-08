@@ -19,4 +19,23 @@
             <fileset dir="src-runtime/META-INF/services"/>
         </copy>
     </target>
+
+    <!-- Portable capability bundle consumed by KylGis runtime.modules.dir. -->
+    <target name="runtime-module" depends="jar"
+            description="Builds the isolated Kitchen runtime capability bundle">
+        <property name="runtime.module.dir"
+                  location="${dist.dir}/runtime-module/kitchen"/>
+        <delete dir="${runtime.module.dir}"/>
+        <mkdir dir="${runtime.module.dir}/lib"/>
+        <copy file="${dist.jar}" todir="${runtime.module.dir}"/>
+        <copy todir="${runtime.module.dir}/lib">
+            <fileset dir="${dist.dir}/lib" includes="*.jar"/>
+        </copy>
+        <echo file="${runtime.module.dir}/README.txt">KylGis Kitchen runtime capability
+
+Copy this whole 'kitchen' directory below the directory configured by runtime.modules.dir.
+The KylGis core discovers the capability through META-INF/services.
+Do not flatten lib/ into the POS classpath; dependencies are intentionally isolated.
+</echo>
+    </target>
 </project>
