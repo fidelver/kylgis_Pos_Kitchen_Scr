@@ -5,6 +5,7 @@
 package com.mx.kylgis.kitchenscr.runtime;
 
 import com.mx.kylgis.kitchenscr.KitchenScr;
+import com.mx.kylgis.kitchenscr.forms.AppConfig;
 import com.mx.kylgis.pos.node.NodeRole;
 import com.mx.kylgis.pos.runtime.CapabilityType;
 import com.mx.kylgis.pos.runtime.RuntimeCapability;
@@ -34,6 +35,8 @@ public final class KitchenRuntimeCapability implements RuntimeCapability {
     @Override
     public RuntimeHandle start(final RuntimeLaunchContext context, boolean daemon) {
         final String configPath = context.getConfig().getConfigFile().getAbsolutePath();
+        AppConfig.installRuntimeConfiguration(context.getConfig().getConfigFile(),
+                context.getConfig().getPropertiesSnapshot());
         System.setProperty("kylgis.config", configPath);
 
         Thread kitchenThread = new Thread(new Runnable() {

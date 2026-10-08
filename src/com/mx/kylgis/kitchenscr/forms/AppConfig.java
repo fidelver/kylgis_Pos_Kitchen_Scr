@@ -29,6 +29,7 @@ public class AppConfig {
     private Properties m_propsconfig = new Properties();
     private final File configFile;
     private ProvisioningResult provisioningResult;
+    private boolean externalRuntimeConfiguration;
     private final Set<String> dirtyProperties = new LinkedHashSet<>();
     private static final Logger logger = Logger.getLogger("com.mx.kylgis.kitchenscr.forms.AppConfig");
 
@@ -36,6 +37,25 @@ public class AppConfig {
         this.configFile = configFile;
         load();
         logger.log(Level.INFO, "Reading configuration file: {0}", configFile.getAbsolutePath());
+    }
+
+    private AppConfig(File configFile, Properties effectiveRuntimeProperties) {
+        if (configFile == null || effectiveRuntimeProperties == null) {
+            throw new IllegalArgumentException("configFile and effectiveRuntimeProperties are required");
+        }
+        this.configFile = configFile;
+        this.externalRuntimeConfiguration = true;
+        this.m_propsconfig = copy(effectiveRuntimeProperties);
+        migrateLegacyProperties();
+        dirtyProperties.clear();
+        logger.log(Level.INFO,
+                "KitchenScreen using in-memory configuration supplied by KylGis runtime: {0}",
+                configFile.getAbsolutePath());
+    }
+
+    public static synchronized void installRuntimeConfiguration(File configFile,
+            Properties effectiveRuntimeProperties) {
+        instance = new AppConfig(configFile, effectiveRuntimeProperties);
     }
 
     public static AppConfig getInstance() {
@@ -58,7 +78,11 @@ public class AppConfig {
     }
 
     public File getConfigFile() { return configFile; }
-    public boolean isProvisioned() { return provisioningResult != null && provisioningResult.isProvisioned(); }
+    public boolean isProvisioned() {
+        return externalRuntimeConfiguration
+                || (provisioningResult != null && provisioningResult.isProvisioned());
+    }
+    public boolean isRuntimeManaged() { return externalRuntimeConfiguration; }
 
     public boolean isMasterNode() {
         String roles = getProperty("node.roles");
@@ -73,8 +97,12 @@ public class AppConfig {
         return false;
     }
 
-    public File getMasterConfigFile() { return isProvisioned() ? provisioningResult.getMasterFile() : null; }
-    public File getNodeModuleFile() { return isProvisioned() ? provisioningResult.getNodeModuleFile() : null; }
+    public File getMasterConfigFile() {
+        return provisioningResult == null ? null : provisioningResult.getMasterFile();
+    }
+    public File getNodeModuleFile() {
+        return provisioningResult == null ? null : provisioningResult.getNodeModuleFile();
+    }
 
     private File getLegacyConfig() {
         return new File(System.getProperty("user.home"), AppLocal.LEGACY_APP_ID + ".properties");
@@ -159,6 +187,9 @@ public class AppConfig {
     }
 
     public void save() throws IOException {
+        if (externalRuntimeConfiguration) {
+            throw new IOException("KitchenScreen runtime-managed configuration is read-only; update the KylGis MASTER instead");
+        }
         if (isProvisioned()) {
             saveNodeOverrides();
             return;
