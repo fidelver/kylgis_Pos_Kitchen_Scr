@@ -37,8 +37,6 @@ public class KeyComboTextField extends TextField {
 	
 	private KeyCodeCombination keyCodeCombo;
 	
-	KeyComboTextFieldSkin keyComboTextFieldSkin = new KeyComboTextFieldSkin(this);
-	
 	
 	public KeyComboTextField(){
 		super();
