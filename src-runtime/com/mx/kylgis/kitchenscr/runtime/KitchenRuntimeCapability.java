@@ -4,7 +4,6 @@
 */
 package com.mx.kylgis.kitchenscr.runtime;
 
-import com.mx.kylgis.kitchenscr.KitchenScr;
 import com.mx.kylgis.kitchenscr.forms.AppConfig;
 import com.mx.kylgis.pos.node.NodeRole;
 import com.mx.kylgis.pos.runtime.CapabilityType;
@@ -12,7 +11,6 @@ import com.mx.kylgis.pos.runtime.RuntimeCapability;
 import com.mx.kylgis.pos.runtime.RuntimeHandle;
 import com.mx.kylgis.pos.runtime.RuntimeLaunchContext;
 import java.io.File;
-import javafx.application.Platform;
 
 /** Exposes KitchenScreen as a modular KylGis runtime capability. */
 public final class KitchenRuntimeCapability implements RuntimeCapability {
@@ -25,6 +23,13 @@ public final class KitchenRuntimeCapability implements RuntimeCapability {
         if (context.getNodeContext().hasRole(NodeRole.POS)) {
             throw new IllegalStateException(
                     "Kitchen and POS cannot share one JVM yet; use separate nodes or processes");
+        }
+        try {
+            Class.forName("javafx.application.Application", false,
+                    KitchenRuntimeCapability.class.getClassLoader());
+        } catch (ClassNotFoundException | LinkageError ex) {
+            throw new IllegalStateException(
+                    "Kitchen capability requires JavaFX. Use a Java 8 distribution with JavaFX compatible with this operating system and CPU architecture.");
         }
         File config = context.getConfig().getConfigFile();
         if (config == null || !config.isFile()) {
@@ -41,7 +46,14 @@ public final class KitchenRuntimeCapability implements RuntimeCapability {
 
         Thread kitchenThread = new Thread(new Runnable() {
             @Override public void run() {
-                KitchenScr.main(new String[0]);
+                try {
+                    Class<?> kitchen = Class.forName("com.mx.kylgis.kitchenscr.KitchenScr", true,
+                            KitchenRuntimeCapability.class.getClassLoader());
+                    kitchen.getMethod("main", String[].class).invoke(null,
+                            (Object) new String[0]);
+                } catch (Exception | LinkageError ex) {
+                    throw new IllegalStateException("Cannot start Kitchen capability", ex);
+                }
             }
         }, "kylgis-runtime-kitchen");
         kitchenThread.setContextClassLoader(KitchenRuntimeCapability.class.getClassLoader());
@@ -51,11 +63,18 @@ public final class KitchenRuntimeCapability implements RuntimeCapability {
         return new RuntimeHandle() {
             @Override public void close() {
                 try {
-                    Platform.runLater(new Runnable() {
-                        @Override public void run() { Platform.exit(); }
-                    });
-                } catch (IllegalStateException ignored) {
-                    // JavaFX toolkit already stopped.
+                    final Class<?> platform = Class.forName("javafx.application.Platform", false,
+                            KitchenRuntimeCapability.class.getClassLoader());
+                    Runnable exit = new Runnable() {
+                        @Override public void run() {
+                            try {
+                                platform.getMethod("exit").invoke(null);
+                            } catch (Exception ignored) { }
+                        }
+                    };
+                    platform.getMethod("runLater", Runnable.class).invoke(null, exit);
+                } catch (Exception | LinkageError ignored) {
+                    // JavaFX toolkit is unavailable or already stopped.
                 }
             }
         };
