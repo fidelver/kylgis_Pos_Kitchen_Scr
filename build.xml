@@ -1,7 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="kylgis_POS_Kitchen_Scr" default="default" basedir=".">
     <description>Builds, tests, and runs the project kylgis_POS_Kitchen_Scr.</description>
+    <!-- Resolve the JDK from the environment/runtime instead of a machine-specific path. -->
+    <property environment="env"/>
+    <condition property="kylgis.java.home" value="${env.JAVA_HOME}">
+        <isset property="env.JAVA_HOME"/>
+    </condition>
+    <condition property="kylgis.java.home" value="${java.home}">
+        <available file="${java.home}/bin/javac"/>
+    </condition>
+    <property name="kylgis.java.home" location="${java.home}/.."/>
+    <property name="platforms.JDK_1.8.home" location="${kylgis.java.home}"/>
     <import file="nbproject/build-impl.xml"/>
+    <!-- Override with -Dkylgis.core.jar=/path/to/kylgispos.jar when repositories are not siblings. -->
+    <property name="kylgis.core.jar" location="../kylgis_Pos/target/kylgispos.jar"/>
+
+    <!-- Fail early with a useful message when the selected JDK does not bundle JavaFX. -->
+    <target name="-pre-compile">
+        <available file="${platforms.JDK_1.8.home}/jre/lib/ext/jfxrt.jar"
+                   property="kylgis.javafx.available"/>
+        <fail unless="kylgis.javafx.available"
+              message="KylGis Kitchen requires a Java 8 JDK with JavaFX. Set JAVA_HOME or -Dkylgis.java.home to a compatible JDK; no OS/CPU-specific path is required."/>
+    </target>
 
     <!-- Runtime SPI bridge: compiled separately so the normal KitchenScreen
          sources remain independent from the POS implementation classes. -->
@@ -10,7 +30,7 @@
                source="1.8" target="1.8" encoding="UTF-8" includeantruntime="false">
             <classpath>
                 <pathelement location="${build.classes.dir}"/>
-                <pathelement location="../kylgis_Pos/target/kylgispos.jar"/>
+                <pathelement location="${kylgis.core.jar}"/>
                 <path path="${javac.classpath}"/>
             </classpath>
             <exclude name="META-INF/**"/>
