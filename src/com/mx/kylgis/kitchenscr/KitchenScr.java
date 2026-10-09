@@ -93,7 +93,7 @@ public class KitchenScr extends Application {
             Stage secondaryStage = new Stage();
             Parent root = FXMLLoader.load(getClass().getResource(
                     "/com/mx/kylgis/kitchenscr/configuration/database.fxml"));
-            secondaryStage.setTitle(AppLocal.APP_NAME
+            secondaryStage.setTitle(windowTitle()
                     + " - Configuración de base de datos - v" + AppLocal.APP_VERSION);
             applyBrandIcon(secondaryStage);
             secondaryStage.setScene(new Scene(root, 600, 500));
@@ -140,10 +140,10 @@ public class KitchenScr extends Application {
 
         try {
             if (AppConfig.getInstance().getProperty("screen.xpos") != null) {
-                width = Integer.parseInt(AppConfig.getInstance().getProperty("screen.width"));
+                scrXpos = Integer.parseInt(AppConfig.getInstance().getProperty("screen.xpos"));
             }
             if (AppConfig.getInstance().getProperty("screen.ypos") != null) {
-                height = Integer.parseInt(AppConfig.getInstance().getProperty("screen.height"));
+                scrYpos = Integer.parseInt(AppConfig.getInstance().getProperty("screen.ypos"));
             }
         } catch (IllegalArgumentException e) {
             scrXpos = 0;
@@ -162,7 +162,7 @@ public class KitchenScr extends Application {
                 Screen secondaryScreen = allScreens.get(1);
                 javafx.geometry.Rectangle2D bounds = secondaryScreen.getVisualBounds();
                 Stage stage = new Stage();
-                stage.setTitle(AppLocal.APP_NAME);
+                stage.setTitle(windowTitle());
                 stage.setX(bounds.getMinX());
                 stage.setY(bounds.getMinY());
                 stage.setScene(myScene);
@@ -174,7 +174,7 @@ public class KitchenScr extends Application {
 
             } else {
                 Stage stage = new Stage();
-                stage.setTitle(AppLocal.APP_NAME);
+                stage.setTitle(windowTitle());
                 stage.setX(scrXpos);
                 stage.setY(scrYpos);
                 stage.setScene(myScene);
@@ -185,7 +185,7 @@ public class KitchenScr extends Application {
                 publicStage = stage;
             }
         } else {
-            primaryStage.setTitle(AppLocal.APP_NAME);
+            primaryStage.setTitle(windowTitle());
             applyBrandIcon(primaryStage);
             primaryStage.setX(scrXpos);
             primaryStage.setY(scrYpos);
@@ -200,7 +200,7 @@ public class KitchenScr extends Application {
         // Aviso de acceso a configuración durante el arranque.
         // KitchenScreen no se muestra hasta que termina este aviso.
         Stage startupConfigStage = new Stage();
-        startupConfigStage.setTitle(AppLocal.APP_NAME);
+        startupConfigStage.setTitle(windowTitle());
         applyBrandIcon(startupConfigStage);
 
         StackPane startupConfigPane = createStartupPresentation();
@@ -238,7 +238,7 @@ public class KitchenScr extends Application {
                             getClass().getResource(
                                     "/com/mx/kylgis/kitchenscr/configuration/database.fxml"));
                     secondaryStage.setTitle(
-                            AppLocal.APP_NAME + " - Configuración de base de datos - v" + AppLocal.APP_VERSION);
+                            windowTitle() + " - Configuración de base de datos - v" + AppLocal.APP_VERSION);
                     applyBrandIcon(secondaryStage);
                     secondaryStage.setScene(
                             new Scene(configRoot, 600, 500));
@@ -340,6 +340,14 @@ public class KitchenScr extends Application {
         StackPane.setMargin(startupConfigLabel, new Insets(0, 10, 8, 0));
 
         return startupConfigPane;
+    }
+
+    private String windowTitle() {
+        String instanceName = AppConfig.getInstance().getProperty("monitor.instance.name");
+        if (instanceName == null || instanceName.trim().isEmpty()) {
+            return AppLocal.APP_NAME;
+        }
+        return AppLocal.APP_NAME + " — " + instanceName.trim();
     }
 
     private void applyBrandIcon(Stage stage) {
