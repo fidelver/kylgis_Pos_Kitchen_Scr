@@ -53,6 +53,18 @@ public class HibernateUtil {
         String sDBPassword = appConfig.getProperty("db.password");
         String sDBDialect = appConfig.getProperty("db.dialect");
 
+        // Provisioned KylGis nodes keep the historical POS JDBC pieces
+        // separate (db.URL + db.schema + db.options). Kitchen/Hibernate needs
+        // one complete JDBC URL. Local legacy Kitchen configs already store a
+        // complete db.URL, so only assemble the pieces in provisioned mode.
+        if (appConfig.isProvisioned()) {
+            String schema = appConfig.getProperty("db.schema");
+            String options = appConfig.getProperty("db.options");
+            sDBURL = valueOrEmpty(sDBURL)
+                    + valueOrEmpty(schema)
+                    + valueOrEmpty(options);
+        }
+
         boolean useKylGisPosConfig = Boolean.parseBoolean(
                 appConfig.getProperty("kylgis.pos.config.enabled"));
 
@@ -165,6 +177,10 @@ public class HibernateUtil {
             }
             return null;
         }
+    }
+
+    private static String valueOrEmpty(String value) {
+        return value == null ? "" : value;
     }
 
     public static synchronized SessionFactory getSessionFactory() {
