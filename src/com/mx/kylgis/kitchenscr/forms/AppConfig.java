@@ -229,6 +229,7 @@ public class AppConfig {
         m_propsconfig.setProperty("screen.refreshinterval", "10000");
         m_propsconfig.setProperty("screen.refreshbackoffmax", "60000");
         m_propsconfig.setProperty("db.show_sql", "false");
+        m_propsconfig.setProperty("monitor.readonly", "false");
         m_propsconfig.setProperty("db.pool.min", "1");
         m_propsconfig.setProperty("db.pool.max", "2");
         m_propsconfig.setProperty("db.pool.maxidle", "300");

@@ -60,6 +60,13 @@ public class DataLogicKitchen {
         }
     }
 
+    private void ensureWriteAllowed() {
+        if (Boolean.parseBoolean(AppConfig.getInstance().getProperty("monitor.readonly"))) {
+            throw new IllegalStateException(
+                    "Monitor de Cocina en modo solo lectura: operación de escritura bloqueada.");
+        }
+    }
+
     public List<String> readDistinctOrders() {
         String sqlQuery;
         if (Boolean.valueOf(AppConfig.getInstance().getProperty("screen.allorders"))) {
@@ -106,6 +113,7 @@ public class DataLogicKitchen {
     }
 
     public void removeOrder(java.sql.Timestamp completetime) {
+        ensureWriteAllowed();
         Session writeSession = null;
         Transaction transaction = null;
         try {
@@ -131,6 +139,7 @@ public class DataLogicKitchen {
     }
 
     public void removeAllOrders() {
+        ensureWriteAllowed();
         Session writeSession = null;
         Transaction transaction = null;
         try {
@@ -151,6 +160,7 @@ public class DataLogicKitchen {
      * Remove all orders for current display only.
      */
     public void removeAllOrdersDisplay() {
+        ensureWriteAllowed();
         Session writeSession = null;
         Transaction transaction = null;
         try {
@@ -195,6 +205,7 @@ public class DataLogicKitchen {
 
     /* N Deppe Sept 2015 - Added to be able to create new order records for recall function */
     public void createOrder(Orders orderData) {
+        ensureWriteAllowed();
         Session writeSession = null;
         Transaction transaction = null;
         try {
