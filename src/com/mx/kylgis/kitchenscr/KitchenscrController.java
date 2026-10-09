@@ -68,6 +68,7 @@ public class KitchenscrController implements Initializable {
     private int refreshIntervalMs = 10000;
     private int refreshBackoffMaxMs = 60000;
     private int consecutiveRefreshFailures = 0;
+    private int lastObservedRowCount = -1;
 
     public Button exit;
     public Button completed;
@@ -475,11 +476,21 @@ public class KitchenscrController implements Initializable {
         // Load first. If the database is temporarily unavailable, keep the
         // current screen intact and retry on the next refresh cycle.
         List<Orders> allOrders;
+        long queryStarted = System.nanoTime();
         try {
             allOrders = dl_kitchen.selectAllOrders();
         } catch (RuntimeException ex) {
             System.err.println("No fue posible actualizar las comandas: " + ex.getMessage());
             return false;
+        }
+        long queryMillis = (System.nanoTime() - queryStarted) / 1000000L;
+        if (allOrders.size() != lastObservedRowCount) {
+            lastObservedRowCount = allOrders.size();
+            System.out.println("KITCHEN_METRIC orders.rows=" + lastObservedRowCount
+                    + " query.ms=" + queryMillis);
+        } else if (queryMillis >= 1000L) {
+            System.err.println("KITCHEN_METRIC slow_query.ms=" + queryMillis
+                    + " orders.rows=" + allOrders.size());
         }
 
         resetItemDisplays();
