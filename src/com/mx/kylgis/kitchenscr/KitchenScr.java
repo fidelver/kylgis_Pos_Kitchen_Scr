@@ -39,7 +39,9 @@ import javafx.scene.control.Label;
 import javafx.geometry.Pos;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.StackPane;
+import javafx.geometry.Insets;
+import javafx.geometry.Rectangle2D;
 import javafx.stage.Modality;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
@@ -201,21 +203,7 @@ public class KitchenScr extends Application {
         startupConfigStage.setTitle(AppLocal.APP_NAME);
         applyBrandIcon(startupConfigStage);
 
-        ImageView startupLogo = new ImageView(new Image(
-                getClass().getResourceAsStream(
-                        "/com/mx/kylgis/kitchenscr/images/kylgis_main.png")));
-        startupLogo.setFitWidth(340);
-        startupLogo.setPreserveRatio(true);
-        startupLogo.setSmooth(true);
-
-        Label startupConfigLabel = new Label("F12 Conf.");
-        startupConfigLabel.setStyle(
-                "-fx-font-size: 12px; -fx-text-fill: #666666;");
-
-        VBox startupConfigPane = new VBox(8, startupLogo, startupConfigLabel);
-        startupConfigPane.setAlignment(Pos.CENTER);
-        startupConfigPane.setPrefSize(440, 235);
-        startupConfigPane.setStyle("-fx-background-color: white;");
+        StackPane startupConfigPane = createStartupPresentation();
 
         Scene startupConfigScene = new Scene(startupConfigPane);
 
@@ -325,6 +313,33 @@ public class KitchenScr extends Application {
     @Override
     public void stop() {
         cleanupApplication();
+    }
+
+    // Presentation layout is independent of the database and startup actions.
+    static StackPane createStartupPresentation() {
+        ImageView startupLogo = new ImageView(new Image(
+                KitchenScr.class.getResourceAsStream(
+                        "/com/mx/kylgis/kitchenscr/images/kylgis_main.png")));
+        // Exclude the white margins in the source asset when fitting the logo.
+        startupLogo.setViewport(new Rectangle2D(144, 5, 212, 211));
+        startupLogo.setPreserveRatio(true);
+        startupLogo.setSmooth(true);
+
+        Label startupConfigLabel = new Label("F12 Conf.");
+        startupConfigLabel.setStyle(
+                "-fx-font-size: 12px; -fx-text-fill: #666666;");
+
+        StackPane startupConfigPane = new StackPane(startupLogo, startupConfigLabel);
+        startupConfigPane.setAlignment(Pos.CENTER);
+        startupConfigPane.setPrefSize(440, 235);
+        startupConfigPane.setStyle("-fx-background-color: white;");
+
+        startupLogo.fitWidthProperty().bind(startupConfigPane.widthProperty().multiply(0.9));
+        startupLogo.fitHeightProperty().bind(startupConfigPane.heightProperty().multiply(0.9));
+        StackPane.setAlignment(startupConfigLabel, Pos.BOTTOM_RIGHT);
+        StackPane.setMargin(startupConfigLabel, new Insets(0, 10, 8, 0));
+
+        return startupConfigPane;
     }
 
     private void applyBrandIcon(Stage stage) {

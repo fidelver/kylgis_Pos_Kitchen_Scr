@@ -235,9 +235,12 @@
                                   <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
                                        <children>
                                           <ListView fx:id="orderlist" editable="true" layoutY="267.0" prefHeight="540.0" prefWidth="142.0" style="-fx-fixed-cell-size: 24;" AnchorPane.bottomAnchor="125.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-                                          <StackPane prefHeight="108.0" style="-fx-background-color: white; -fx-padding: 6;" AnchorPane.bottomAnchor="9.0" AnchorPane.leftAnchor="8.0" AnchorPane.rightAnchor="8.0">
+                                          <StackPane fx:id="waitingLogoBox" minHeight="108.0" prefHeight="108.0" maxHeight="108.0" style="-fx-background-color: white;" AnchorPane.bottomAnchor="9.0" AnchorPane.leftAnchor="8.0" AnchorPane.rightAnchor="8.0">
                                              <children>
-                                                <ImageView fitWidth="150.0" preserveRatio="true" smooth="true">
+                                                <ImageView fx:id="waitingLogo" fitWidth="${waitingLogoBox.width * 0.9}" fitHeight="${waitingLogoBox.height * 0.9}" preserveRatio="true" smooth="true">
+                                                   <viewport>
+                                                      <Rectangle2D minX="144.0" minY="5.0" width="212.0" height="211.0" />
+                                                   </viewport>
                                                    <image>
                                                       <Image url="@images/kylgis_main.png" />
                                                    </image>
@@ -256,7 +259,7 @@
             </AnchorPane>
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
                <children>
-                  <Button fx:id="completed" defaultButton="true" layoutX="190.0" layoutY="5.0" mnemonicParsing="false" onAction="#handleCompleteOrder" prefHeight="43.0" prefWidth="534.0" textAlignment="CENTER" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="190.0" AnchorPane.rightAnchor="300.0">
+                  <Button fx:id="completed" defaultButton="true" layoutX="190.0" layoutY="5.0" mnemonicParsing="false" onAction="#handleCompleteOrder" prefHeight="43.0" prefWidth="480.6" textAlignment="CENTER" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="190.0" AnchorPane.rightAnchor="353.4">
                      <font>
                         <Font name="Tahoma Bold" size="18.0" />
                      </font></Button>
@@ -268,7 +271,7 @@
                      <font>
                         <Font name="Arial Bold" size="24.0" />
                      </font></Label>
-                  <Button fx:id="recall" layoutX="788.0" layoutY="6.0" mnemonicParsing="false" onAction="#handleRecallOrder" prefHeight="41.0" prefWidth="130.0" text="Recuperar" AnchorPane.bottomAnchor="5.0" AnchorPane.rightAnchor="106.0">
+                  <Button fx:id="recall" layoutX="734.6" layoutY="6.0" mnemonicParsing="false" onAction="#handleRecallOrder" prefHeight="41.0" prefWidth="183.4" text="Recuperar" AnchorPane.bottomAnchor="5.0" AnchorPane.rightAnchor="106.0">
 							<font>
 								<Font name="Tahoma Bold" size="18.0" />
 							</font>
