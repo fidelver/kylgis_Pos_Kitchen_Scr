@@ -140,23 +140,42 @@ public class HibernateUtil {
                 "hibernate.connection.password", sDBPassword);
         configuration.setProperty(
                 "hibernate.dialect", sDBDialect);
-        /*
-         // Set up connection pooling to use c3p0 rather than hibernates built in pooling
-         configuration.setProperty("hibernate.connection.provider_class", "org.hibernate.connection.C3P0ConnectionProvider");
-         // configuration.setProperty("hibernate.connection.provider_class", "org.hibernate.service.jdbc.connections.internal.C3P0ConnectionProvider");
-       
-         configuration.setProperty("hibernate.c3p0.initialPoolSize", "5");
-         configuration.setProperty("hibernate.c3p0.min", "5");
-         configuration.setProperty("hibernate.c3p0.max", "10");
-         configuration.setProperty("hibernate.c3p0.timeout", "5000");
-         configuration.setProperty("hibernate.c3p0.max_statements", "30");
-         configuration.setProperty("hibernate.c3p0.idle_test_period", "300");
-         configuration.setProperty("hibernate.c3p0.aquire_increment", "2");
-         */
+        // Use c3p0 instead of Hibernate's minimal built-in pool. Kitchen keeps
+        // only one or two physical connections and periodically validates idle
+        // sockets with SELECT 1. This discards connections closed by MariaDB
+        // (wait_timeout, restart or a transient network outage) without adding
+        // a validation query to every 10-second screen refresh.
+        configuration.setProperty(
+                "hibernate.connection.provider_class",
+                "org.hibernate.c3p0.internal.C3P0ConnectionProvider");
+        configuration.setProperty("hibernate.c3p0.min_size",
+                valueOrDefault(appConfig.getProperty("db.pool.min"), "1"));
+        configuration.setProperty("hibernate.c3p0.max_size",
+                valueOrDefault(appConfig.getProperty("db.pool.max"), "2"));
+        configuration.setProperty("hibernate.c3p0.acquire_increment", "1");
+        configuration.setProperty("hibernate.c3p0.timeout",
+                valueOrDefault(appConfig.getProperty("db.pool.maxidle"), "300"));
+        configuration.setProperty("hibernate.c3p0.idle_test_period",
+                valueOrDefault(appConfig.getProperty("db.pool.idletestperiod"), "60"));
+        configuration.setProperty("hibernate.c3p0.preferredTestQuery", "SELECT 1");
+        configuration.setProperty("hibernate.c3p0.checkoutTimeout",
+                valueOrDefault(appConfig.getProperty("db.pool.checkouttimeout"), "3000"));
+        configuration.setProperty("hibernate.c3p0.acquireRetryAttempts", "2");
+        configuration.setProperty("hibernate.c3p0.acquireRetryDelay", "1000");
+        configuration.setProperty("hibernate.c3p0.breakAfterAcquireFailure", "false");
+
+        // Bound MySQL network stalls as well as pool checkout time. These are
+        // JDBC driver properties, not automatic SQL retries.
+        if (sDBDriver != null && sDBDriver.toLowerCase().contains("mysql")) {
+            configuration.setProperty("hibernate.connection.connectTimeout",
+                    valueOrDefault(appConfig.getProperty("db.network.connecttimeout"), "5000"));
+            configuration.setProperty("hibernate.connection.socketTimeout",
+                    valueOrDefault(appConfig.getProperty("db.network.sockettimeout"), "5000"));
+        }
+
         //configuration.setProperty("hibernate.hbm2ddl.auto", "update");
-        configuration.setProperty("hibernate.show_sql", "true");
-        // El monitor ejecuta consultas cortas y secuenciales; dos conexiones son suficientes.
-        configuration.setProperty("hibernate.connection.pool_size", "2");
+        configuration.setProperty("hibernate.show_sql",
+                valueOrDefault(appConfig.getProperty("db.show_sql"), "false"));
 
         configuration.addAnnotatedClass(Orders.class);
 
@@ -183,6 +202,10 @@ public class HibernateUtil {
         return value == null ? "" : value;
     }
 
+    private static String valueOrDefault(String value, String defaultValue) {
+        return value == null || value.trim().isEmpty() ? defaultValue : value.trim();
+    }
+
     public static synchronized SessionFactory getSessionFactory() {
         return sessionFactory;
     }
@@ -199,7 +222,11 @@ public class HibernateUtil {
         Session testSession = null;
         try {
             testSession = sessionFactory.openSession();
-            return true;
+            // Opening a Hibernate Session alone does not guarantee a JDBC
+            // round-trip. Execute a harmless query so startup/configuration
+            // checks prove that MariaDB is actually reachable.
+            Object result = testSession.createSQLQuery("SELECT 1").uniqueResult();
+            return result != null;
         } catch (Exception ex) {
             return false;
         } finally {

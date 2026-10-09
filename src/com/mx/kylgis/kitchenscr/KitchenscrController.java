@@ -65,6 +65,9 @@ public class KitchenscrController implements Initializable {
     private final AtomicBoolean orderUpdateRunning = new AtomicBoolean(false);
     private javax.swing.Timer clockTimer;
     private javax.swing.Timer displayTimer;
+    private int refreshIntervalMs = 10000;
+    private int refreshBackoffMaxMs = 60000;
+    private int consecutiveRefreshFailures = 0;
 
     public Button exit;
     public Button completed;
@@ -170,7 +173,7 @@ public class KitchenscrController implements Initializable {
                 @Override
                 public void run() {
                     try {
-                        buildOrderPanels();
+                        updateRefreshDelay(buildOrderPanels());
                     } finally {
                         orderUpdateRunning.set(false);
                     }
@@ -204,9 +207,15 @@ public class KitchenscrController implements Initializable {
         // Recall button is initially not visible.  It is visible when an order is closed.
         displayRecallButton();
 
+        refreshIntervalMs = readBoundedIntProperty(
+                "screen.refreshinterval", 10000, 2000, 300000);
+        refreshBackoffMaxMs = readBoundedIntProperty(
+                "screen.refreshbackoffmax", 60000, refreshIntervalMs, 600000);
+
         clockTimer = new javax.swing.Timer(1000, new PrintTimeAction());
         clockTimer.start();
-        displayTimer = new javax.swing.Timer(10000, new updateDisplay());
+        displayTimer = new javax.swing.Timer(refreshIntervalMs, new updateDisplay());
+        displayTimer.setCoalesce(true);
         displayTimer.start();
 
         order0items.setOnMouseClicked((MouseEvent event) -> {
@@ -461,7 +470,7 @@ public class KitchenscrController implements Initializable {
         }
     }
 
-    private void buildOrderPanels() {
+    private boolean buildOrderPanels() {
 
         // Load first. If the database is temporarily unavailable, keep the
         // current screen intact and retry on the next refresh cycle.
@@ -470,7 +479,7 @@ public class KitchenscrController implements Initializable {
             allOrders = dl_kitchen.selectAllOrders();
         } catch (RuntimeException ex) {
             System.err.println("No fue posible actualizar las comandas: " + ex.getMessage());
-            return;
+            return false;
         }
 
         resetItemDisplays();
@@ -559,6 +568,43 @@ public class KitchenscrController implements Initializable {
         }
 
         updateDisplays();
+        return true;
+    }
+
+    private void updateRefreshDelay(boolean success) {
+        if (displayTimer == null) {
+            return;
+        }
+
+        if (success) {
+            if (consecutiveRefreshFailures > 0 || displayTimer.getDelay() != refreshIntervalMs) {
+                System.out.println("Conexión de cocina recuperada; refresco normal cada "
+                        + refreshIntervalMs + " ms.");
+            }
+            consecutiveRefreshFailures = 0;
+            displayTimer.setDelay(refreshIntervalMs);
+            return;
+        }
+
+        consecutiveRefreshFailures++;
+        long multiplier = 1L << Math.min(consecutiveRefreshFailures, 6);
+        int nextDelay = (int) Math.min((long) refreshBackoffMaxMs,
+                (long) refreshIntervalMs * multiplier);
+        if (displayTimer.getDelay() != nextDelay) {
+            System.err.println("BBDD de cocina no disponible; siguiente refresco en "
+                    + nextDelay + " ms (fallos consecutivos="
+                    + consecutiveRefreshFailures + ").");
+        }
+        displayTimer.setDelay(nextDelay);
+    }
+
+    private int readBoundedIntProperty(String key, int defaultValue, int min, int max) {
+        try {
+            int value = Integer.parseInt(AppConfig.getInstance().getProperty(key));
+            return Math.max(min, Math.min(max, value));
+        } catch (Exception ex) {
+            return Math.max(min, Math.min(max, defaultValue));
+        }
     }
 
     // clear the list of order items being shown

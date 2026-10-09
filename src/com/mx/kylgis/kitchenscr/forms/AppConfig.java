@@ -226,6 +226,16 @@ public class AppConfig {
         m_propsconfig.setProperty("db.user", "");
         m_propsconfig.setProperty("db.password", "");
         m_propsconfig.setProperty("screen.displaynumber", "1");
+        m_propsconfig.setProperty("screen.refreshinterval", "10000");
+        m_propsconfig.setProperty("screen.refreshbackoffmax", "60000");
+        m_propsconfig.setProperty("db.show_sql", "false");
+        m_propsconfig.setProperty("db.pool.min", "1");
+        m_propsconfig.setProperty("db.pool.max", "2");
+        m_propsconfig.setProperty("db.pool.maxidle", "300");
+        m_propsconfig.setProperty("db.pool.idletestperiod", "60");
+        m_propsconfig.setProperty("db.pool.checkouttimeout", "3000");
+        m_propsconfig.setProperty("db.network.connecttimeout", "5000");
+        m_propsconfig.setProperty("db.network.sockettimeout", "5000");
         m_propsconfig.setProperty("db.dialect", "org.hibernate.dialect.MySQLDialect");
     }
 
