@@ -24,16 +24,38 @@ public final class KitchenRuntimeCapability implements RuntimeCapability {
             throw new IllegalStateException(
                     "Kitchen and POS cannot share one JVM yet; use separate nodes or processes");
         }
-        try {
-            Class.forName("javafx.application.Application", false,
-                    KitchenRuntimeCapability.class.getClassLoader());
-        } catch (ClassNotFoundException | LinkageError ex) {
+        if (!javaFxAvailable()) {
             throw new IllegalStateException(
                     "Kitchen capability requires JavaFX. Use a Java 8 distribution with JavaFX compatible with this operating system and CPU architecture.");
         }
         File config = context.getConfig().getConfigFile();
         if (config == null || !config.isFile()) {
             throw new IllegalStateException("Kitchen capability requires an existing node bootstrap/config file");
+        }
+    }
+
+    private static boolean javaFxAvailable() {
+        try {
+            Class.forName("javafx.application.Application", false,
+                    KitchenRuntimeCapability.class.getClassLoader());
+            return true;
+        } catch (ClassNotFoundException | LinkageError ignored) {
+            return systemModulePresent("javafx.graphics");
+        }
+    }
+
+    private static boolean systemModulePresent(String moduleName) {
+        try {
+            // Compile with Java 8, but recognize Java 9+ system modules at runtime.
+            // ModuleFinder.ofSystem() inspects only trusted runtime modules and does
+            // not load any KylGis bundle class before integrity verification.
+            Class<?> finderType = Class.forName("java.lang.module.ModuleFinder");
+            Object finder = finderType.getMethod("ofSystem").invoke(null);
+            Object optional = finderType.getMethod("find", String.class).invoke(finder, moduleName);
+            Object present = optional.getClass().getMethod("isPresent").invoke(optional);
+            return Boolean.TRUE.equals(present);
+        } catch (Throwable ignored) {
+            return false;
         }
     }
 
