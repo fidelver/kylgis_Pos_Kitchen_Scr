@@ -120,16 +120,31 @@ public class DataLogicKitchen {
             writeSession = openSession();
             transaction = writeSession.beginTransaction();
 
-            String sql = "DELETE FROM orders WHERE COMPLETETIME = :completetime "
-                    + "AND DISPLAYID = :display";
+            boolean allOrders = Boolean.parseBoolean(
+                    AppConfig.getInstance().getProperty("screen.allorders"));
+            String sql = "DELETE FROM orders WHERE COMPLETETIME = :completetime";
+            if (!allOrders) {
+                sql += " AND DISPLAYID = :display";
+            }
+
             SQLQuery currentQuery = writeSession.createSQLQuery(sql);
             currentQuery.setParameter("completetime",
                     new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS")
                             .format(completetime));
-            currentQuery.setParameter("display",
-                    Integer.parseInt(AppConfig.getInstance().getProperty("screen.displaynumber")));
-            currentQuery.executeUpdate();
+            if (!allOrders) {
+                currentQuery.setParameter("display",
+                        Integer.parseInt(AppConfig.getInstance().getProperty("screen.displaynumber")));
+            }
+
+            int affected = currentQuery.executeUpdate();
+            if (affected <= 0) {
+                throw new IllegalStateException(
+                        "No se encontró la comanda seleccionada para terminarla.");
+            }
             transaction.commit();
+            System.out.println("KITCHEN_COMPLETE rows=" + affected
+                    + " completetime=" + completetime
+                    + " allorders=" + allOrders);
         } catch (RuntimeException ex) {
             rollback(transaction);
             throw ex;

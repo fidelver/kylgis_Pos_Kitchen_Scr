@@ -186,9 +186,14 @@ public class KitchenscrController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
 
-        if ("monitor".equals(KitchenScr.parameter)) {
-            completed.setVisible(false);
-        }
+        // El modo de arranque "monitor" no determina permisos de escritura.
+        // La configuración monitor.readonly es la autoridad para terminar pedidos.
+        boolean canCompleteOrders = !Boolean.parseBoolean(
+                AppConfig.getInstance().getProperty("monitor.readonly"));
+        completed.setVisible(canCompleteOrders);
+        completed.setManaged(canCompleteOrders);
+        completed.setDisable(true);
+        completed.setText("Terminar pedido");
 
         dl_kitchen = new DataLogicKitchen();
 
@@ -340,15 +345,25 @@ public class KitchenscrController implements Initializable {
     }
 
     public void handleCompleteOrder() {
-        if (!"monitor".equals(KitchenScr.parameter)) {
-            if (selectedOrderId != null && selectedCompleteTime != null) {
-                dl_kitchen.removeOrder(selectedCompleteTime);
-                closedOrders.push(selectedOrder);  // add to closed order history
-                orderDataList.remove(selectedOrderNum);
-                clearSelectedOrder();
+        if (Boolean.parseBoolean(AppConfig.getInstance().getProperty("monitor.readonly"))
+                || selectedOrderId == null || selectedCompleteTime == null) {
+            return;
+        }
+        try {
+            dl_kitchen.removeOrder(selectedCompleteTime);
+            if (closedOrders != null && selectedOrder != null) {
+                closedOrders.push(selectedOrder);
             }
+            orderDataList.remove(selectedOrderNum);
+            clearSelectedOrder();
             buildOrderPanels();
             displayRecallButton();
+        } catch (RuntimeException ex) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("No se pudo terminar el pedido");
+            alert.setHeaderText("La comanda sigue pendiente");
+            alert.setContentText("Verifica la conexión e inténtalo de nuevo.");
+            alert.showAndWait();
         }
     }
 
@@ -457,11 +472,13 @@ public class KitchenscrController implements Initializable {
     }
 
     private void updateButtonText(String id) {
-        if (selectedOrderId == null) {
-            completed.setText("");
-        } else {
-            completed.setText("Comanda: '" + id + "' completada.");
-        }
+        boolean canComplete = !Boolean.parseBoolean(
+                AppConfig.getInstance().getProperty("monitor.readonly"));
+        completed.setDisable(!canComplete || selectedOrderId == null
+                || selectedCompleteTime == null);
+        completed.setText(selectedOrderId == null
+                ? "Terminar pedido"
+                : "Terminar pedido: " + id);
     }
 
     private void updateLabels() {
