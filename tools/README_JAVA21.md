@@ -6,3 +6,5 @@ Construir: tools/build-java21-fedora.sh con KYLGIS_JAVA21_HOME opcional. Modulos
 Windows: recompilar y empaquetar nativamente en Windows x64 con JDK21 y JavaFX Windows; no copiar runtime Linux.
 
 QA: compilacion Java21 --release 21 (18 fuentes) exitosa; jlink JavaFX Linux exitoso; validacion grafica FXML y BD requieren fixture LAB aislado; no certificado Windows ni ordenes.
+
+Fedora FX smoke: compile tools/FxRuntimeSmoke.java with FX modulepath and execute with GDK_BACKEND=x11 and portable runtime; expected FX_SMOKE_OK and rc=0, no DB access.

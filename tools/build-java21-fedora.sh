@@ -47,5 +47,9 @@ chmod +x "$OUT/dist/Run.sh"
  cd "$OUT/dist"
  sha256sum KylGis_POS_Monitor_de_Cocina_Java21.jar lib/*.jar fx/*.jar > SHA256SUMS
 )
+if [[ ! -x "$OUT/dist/runtime/bin/java" ]]; then
+  FX_MODULES="$(IFS=:; echo "${FX_JARS[*]}")"
+  "$JAVA_HOME/bin/jlink" --module-path "$JAVA_HOME/jmods:$FX_MODULES" --add-modules javafx.controls,javafx.fxml,java.sql,java.naming,java.xml,java.desktop,java.management,java.instrument,jdk.unsupported --strip-debug --no-header-files --no-man-pages --output "$OUT/dist/runtime"
+fi
 echo "JAVA21_BUILD_OK jar=$OUT/dist/KylGis_POS_Monitor_de_Cocina_Java21.jar"
 sha256sum "$OUT/dist/KylGis_POS_Monitor_de_Cocina_Java21.jar"
