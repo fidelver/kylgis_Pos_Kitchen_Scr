@@ -6,3 +6,6 @@
 /store/
 hs_err_pid*.log
 *.backup
+
+/build-java21/
+/qa-java21/
