@@ -10,10 +10,18 @@ public final class KitchenMariaDbQa {
  private static final String EXPECTED_URL = "jdbc:mysql://127.0.0.1:33319/kitchen_sintetica?useSSL=false&connectTimeout=2500&socketTimeout=2500";
  private static final String PREFIX = "QA-J21-20261019-";
  private static final String CONTAINER = "kylgis-kitchen-java21-qa-20261019";
+ private static String inspectField(String fmt) throws Exception {
+  Process p=new ProcessBuilder("podman","inspect","--format",fmt,CONTAINER).redirectErrorStream(true).start();
+  String value=new String(p.getInputStream().readAllBytes(),java.nio.charset.StandardCharsets.UTF_8).trim();
+  check(p.waitFor()==0,"INSPECT_OK");
+  return value;
+ }
  private static void ensureIsolation() throws Exception {
-  Process p = new ProcessBuilder("podman","inspect","--format","{{.Name}} {{.ImageName}} {{index .Config.Labels \"kylgis.qa.scope\"}}",CONTAINER).redirectErrorStream(true).start();
-  String info = new String(p.getInputStream().readAllBytes(),java.nio.charset.StandardCharsets.UTF_8).trim();
-  check(p.waitFor()==0 && info.contains(CONTAINER) && info.contains("mariadb") && info.endsWith("kitchen-java21-synthetic-only"),"CONTENEDOR_IDENTIDAD_VERIFICADA");
+  String name = inspectField("{{.Name}}");
+  String image = inspectField("{{.Config.Image}}");
+  String label = inspectField("{{index .Config.Labels \"kylgis.qa.scope\"}}");
+  check(CONTAINER.equals(name) && "docker.io/library/mariadb:10.11".equals(image)
+   && "kitchen-java21-synthetic-only".equals(label),"CONTENEDOR_IDENTIDAD_VERIFICADA");
   ensureContainerOnly();
   try(Connection conn=DriverManager.getConnection(EXPECTED_URL,"root","");Statement st=conn.createStatement()){
    try(ResultSet rs=st.executeQuery("SELECT DATABASE(), @@hostname, @@port")){
@@ -101,8 +109,12 @@ public final class KitchenMariaDbQa {
    check(HibernateUtil.rebuildSessionFactory(),"RECONEXION_HIBERNATE");
    check(dl.selectAllOrders().size()==9,"LECTURA_TRAS_RECONEXION");
   }finally {
-   try { cleanupOwnOrders(); } catch(Exception x) { System.err.println("QA_CLEANUP_ERROR "+x); throw x; }
-   HibernateUtil.shutdown();
+   try {
+    cleanupOwnOrders();
+   } finally {
+    HibernateUtil.shutdown();
+    System.out.println("PASS HIBERNATE_SHUTDOWN_ATTEMPTED");
+   }
   }
   System.out.println("KITCHEN_MARIADB_QA_SUCCESS");
  }
