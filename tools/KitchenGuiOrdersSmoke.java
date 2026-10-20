@@ -12,6 +12,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.stage.Stage;
 public final class KitchenGuiOrdersSmoke extends Application {
+ private static volatile boolean failed = false;
  public void start(Stage stage) {
   KitchenscrController controller=null;
   try {
@@ -39,13 +40,32 @@ public final class KitchenGuiOrdersSmoke extends Application {
     if(label!=null && lines!=null && label.getText()!=null && !label.getText().isBlank() && !lines.getItems().isEmpty())visible++;
     System.out.println("GUI_SLOT_"+i+" header="+(label==null?"MISSING":label.getText())+" lines="+(lines==null?-1:lines.getItems().size()));
    }
+   if(Boolean.getBoolean("kylgis.qa.forceFailure"))throw new AssertionError("INTENTIONAL_QA_FAILURE");
    if(visible!=8)throw new AssertionError("GUI_8_ORDERS_VISIBLE actual="+visible);
    System.out.println("PASS GUI_EIGHT_ORDER_PANELS_RENDERED");
-  } catch(Throwable e) { e.printStackTrace();System.out.println("FAIL GUI_8_ORDERS"); }
-  finally {
-   if(controller!=null)controller.shutdown();
-   HibernateUtil.shutdown();stage.close();Platform.exit();
+  } catch(Throwable e) {
+   failed=true;
+   e.printStackTrace();
+   System.err.println("FAIL GUI_8_ORDERS");
+  } finally {
+   try {
+    if(controller!=null)controller.shutdown();
+   } catch(Throwable e) {failed=true;e.printStackTrace();}
+   try {
+    HibernateUtil.shutdown();
+   } catch(Throwable e) {failed=true;e.printStackTrace();}
+   try {stage.close();} catch(Throwable e){failed=true;e.printStackTrace();}
+   Platform.exit();
   }
  }
- public static void main(String[] args){launch(args);}
+ public static void main(String[] args) {
+  try {
+   launch(args);
+  } catch(Throwable e) {
+   failed=true;
+   e.printStackTrace();
+  } finally {
+   System.exit(failed ? 1 : 0);
+  }
+ }
 }
