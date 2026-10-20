@@ -5,9 +5,14 @@ OUT="${OUT:-$ROOT/qa-java21}"
 JAVA_HOME="${KYLGIS_JAVA21_HOME:-/usr/lib/jvm/java-21-temurin-jdk}"
 FX_VERSION="${FX_VERSION:-23.0.2}"
 FX_REPO="${FX_REPO:-$HOME/.m2/repository/org/openjfx}"
-CORE_JAR="${CORE_JAR:-/home/fam/NetBeansProjects/kylgis_Pos/target/kylgispos.jar}"
+CORE_JAR="${CORE_JAR:-}"
+CORE_SHA256="${CORE_SHA256:-}"
 mkdir -p "$OUT/classes" "$OUT/dist/lib" "$OUT/dist/fx" "$OUT/logs"
+if [[ -z "$CORE_JAR" || -z "$CORE_SHA256" ]]; then echo "Set CORE_JAR and CORE_SHA256 explicitly to an isolated, reviewed artifact" >&2; exit 2; fi
 if [[ ! -f "$CORE_JAR" ]]; then echo "Missing core jar: $CORE_JAR" >&2; exit 2; fi
+ACTUAL_SHA256="$(sha256sum "$CORE_JAR" | cut -d' ' -f1)"
+if [[ "$ACTUAL_SHA256" != "$CORE_SHA256" ]]; then echo "CORE_JAR_SHA256_MISMATCH expected=$CORE_SHA256 actual=$ACTUAL_SHA256" >&2; exit 4; fi
+if [[ "$CORE_JAR" == */target/* ]]; then echo "Refusing mutable target/ core input" >&2; exit 5; fi
 if [[ ! -x "$JAVA_HOME/bin/javac" ]]; then echo "Missing JDK21: $JAVA_HOME" >&2; exit 2; fi
 FX_JARS=()
 for m in base graphics controls fxml; do
@@ -23,7 +28,7 @@ find "$ROOT/src" "$ROOT/src-runtime" -type f -name '*.java' | sort > "$OUT/logs/
 cd "$ROOT/src" && find . -type f ! -name '*.java' -exec cp --parents '{}' "$OUT/classes" \;
 if [[ -d "$ROOT/src-runtime/META-INF" ]]; then cp -r "$ROOT/src-runtime/META-INF" "$OUT/classes/"; fi
 printf 'Manifest-Version: 1.0\nMain-Class: com.mx.kylgis.kitchenscr.KitchenScr\n\n' > "$OUT/logs/manifest.mf"
-"$JAVA_HOME/bin/jar" --create --file "$OUT/dist/KylGis_POS_Monitor_de_Cocina_Java21.jar" --manifest "$OUT/logs/manifest.mf" -C "$OUT/classes" .
+"$JAVA_HOME/bin/jar" --create --date=1980-01-01T00:00:02Z --file "$OUT/dist/KylGis_POS_Monitor_de_Cocina_Java21.jar" --manifest "$OUT/logs/manifest.mf" -C "$OUT/classes" .
 for f in "${LIB_JARS[@]}"; do cp "$f" "$OUT/dist/lib/"; done
 for f in "${FX_JARS[@]}"; do cp "$f" "$OUT/dist/fx/"; done
 cat > "$OUT/dist/Run.sh" <<'EOS'
@@ -40,7 +45,7 @@ for f in "$HERE"/lib/*.jar; do CP="$CP:$f"; done
 FX=""
 for f in "$HERE"/fx/*.jar; do FX="${FX:+$FX:}$f"; done
 export GDK_BACKEND="${GDK_BACKEND:-x11}"
-exec "$JAVABIN" -Dprism.order=sw --module-path "$FX" --add-modules javafx.controls,javafx.fxml -cp "$CP" com.mx.kylgis.kitchenscr.KitchenScr "$@"
+exec "$JAVABIN" --add-opens=java.base/java.lang=ALL-UNNAMED -Dprism.order=sw --module-path "$FX" --add-modules javafx.controls,javafx.fxml -cp "$CP" com.mx.kylgis.kitchenscr.KitchenScr "$@"
 EOS
 chmod +x "$OUT/dist/Run.sh"
 (

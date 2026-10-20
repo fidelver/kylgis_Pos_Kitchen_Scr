@@ -3,17 +3,21 @@ param(
  [string]$FxVersion = "23.0.2",
  [string]$MavenRepo = "$env:USERPROFILE\.m2\repository",
  [string]$CoreJar = "",
+ [string]$CoreSha256 = "",
  [string]$Out = ""
 )
 $ErrorActionPreference = "Stop"
 $root = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 if (-not $Out) { $Out = Join-Path $root "qa-java21-windows" }
-if (-not $CoreJar) { $CoreJar = Join-Path (Split-Path $root) "kylgis_Pos\target\kylgispos.jar" }
+if (-not $CoreJar -or -not $CoreSha256) { throw "CoreJar and CoreSha256 are required" }
 $javac = Join-Path $JavaHome "bin\javac.exe"
 $jar = Join-Path $JavaHome "bin\jar.exe"
 $jlink = Join-Path $JavaHome "bin\jlink.exe"
 if (-not (Test-Path $javac)) { throw "JDK21 Windows faltante" }
 if (-not (Test-Path $CoreJar)) { throw "Core POS jar faltante: $CoreJar" }
+if ($CoreJar -match "[\\/]target[\\/]") { throw "Refusing mutable target core" }
+$actual = (Get-FileHash -Algorithm SHA256 $CoreJar).Hash.ToLowerInvariant()
+if ($actual -ne $CoreSha256.ToLowerInvariant()) { throw "CORE_JAR_SHA256_MISMATCH expected=$CoreSha256 actual=$actual" }
 $fx = @()
 foreach ($m in @("base","graphics","controls","fxml")) {
  $f = Join-Path $MavenRepo ("org\openjfx\javafx-" + $m + "\" + $FxVersion + "\javafx-" + $m + "-" + $FxVersion + "-win.jar")
@@ -58,7 +62,7 @@ set "CP=%HERE%KylGis_POS_Monitor_de_Cocina_Java21.jar"
 for %%F in ("%HERE%lib\*.jar") do set "CP=!CP!;%%F"
 set "FX="
 for %%F in ("%HERE%fx\*.jar") do set "FX=!FX!;%%F"
-"%HERE%runtime\bin\java.exe" -Dprism.order=sw --module-path "%FX%" --add-modules javafx.controls,javafx.fxml -cp "%CP%" com.mx.kylgis.kitchenscr.KitchenScr %*
+"%HERE%runtime\bin\java.exe" --add-opens=java.base/java.lang=ALL-UNNAMED -Dprism.order=sw --module-path "%FX%" --add-modules javafx.controls,javafx.fxml -cp "%CP%" com.mx.kylgis.kitchenscr.KitchenScr %*
 '@
 Set-Content -Path (Join-Path $dist "Run.bat") -Value $bat -Encoding ascii
 Get-ChildItem $dist -File -Recurse | Get-FileHash -Algorithm SHA256 | ForEach-Object { $_.Hash + "  " + $_.Path.Substring($dist.Length + 1) } | Set-Content (Join-Path $dist "SHA256SUMS.txt")
