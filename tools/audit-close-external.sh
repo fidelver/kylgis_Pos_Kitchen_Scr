@@ -64,13 +64,16 @@ wait "$watchdog" 2>/dev/null || :
 watchdog=''
 if [[ -e "$marker" ]]; then echo "FAIL PROCESS_TIMEOUT limit=${limit}s"; exit 124; fi
 echo "JAVA_EXIT_RC=$rc"
+if kill -0 "$child_pid" 2>/dev/null || [[ -d "/proc/$child_pid" ]]; then
+  echo "FAIL PID_STILL_ALIVE_AFTER_WAIT"; exit 1
+fi
 echo "PASS PID_REAPED_AFTER_EXIT"
 if ! "${AUDIT_SS_BIN:-/usr/sbin/ss}" -ntp > "$socket_file" 2>"$LOGDIR/close-ss-error.log"; then
   echo "FAIL SS_INSPECTION_ERROR"; exit 1
 fi
 echo "PASS SS_INSPECTION_AFTER_EXIT"
 # The original child PID is no longer alive; sockets owned by it must be absent.
-if grep -Fq "pid=${QA_AUDIT_PID:-0}," "$socket_file"; then
+if grep -Fq "pid=$child_pid," "$socket_file"; then
   echo "FAIL JDBC_SOCKET_HELD"; exit 1
 fi
 echo "PASS NO_JDBC_SOCKET_FOR_EXITED_PID"
