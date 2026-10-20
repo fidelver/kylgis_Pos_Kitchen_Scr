@@ -47,6 +47,7 @@ public final class KitchenStartupF12Smoke extends Application {
    closeSettings.play();
    startup.getScene().getRoot().fireEvent(new KeyEvent(KeyEvent.KEY_PRESSED,"","",KeyCode.F12,false,false,false,false));
    assertCheck(KitchenScr.publicStage!=null && KitchenScr.publicStage.isShowing(),"F12_RETURN_TO_KITCHEN");
+   assertCheck(!startup.isShowing(),"F12_SPLASH_CLOSED");
   } catch(Throwable e){failed=true;e.printStackTrace();}
   finally{
    Platform.exit();

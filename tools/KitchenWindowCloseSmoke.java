@@ -37,8 +37,9 @@ public final class KitchenWindowCloseSmoke extends Application {
    PauseTransition action=new PauseTransition(Duration.millis(400));
    action.setOnFinished(e -> {
     try {
-     System.out.println("PASS CLOSE_X_REQUEST_DISPATCHED");
+     System.out.println("CLOSE_X_REQUEST_DISPATCHING");
      startup.fireEvent(new javafx.stage.WindowEvent(startup,javafx.stage.WindowEvent.WINDOW_CLOSE_REQUEST));
+     // If shutdownApplication() does not terminate, execution must reach this failure branch.
      failed=true;
      System.err.println("FAIL CLOSE_X_DID_NOT_EXIT");
      Platform.exit();
