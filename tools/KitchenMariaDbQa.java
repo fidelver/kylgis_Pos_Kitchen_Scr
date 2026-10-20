@@ -37,9 +37,23 @@ public final class KitchenMariaDbQa {
   ensureContainerOnly();
   try(Connection conn=DriverManager.getConnection(EXPECTED_URL,"root","")){
    check("kitchen_sintetica".equals(conn.getCatalog()),"BD_LIMPIEZA_IDENTIDAD");
-   try(PreparedStatement q=conn.prepareStatement("DELETE FROM orders WHERE ORDERID IN (?,?,?,?,?,?,?,?)")){
-    for(int i=1;i<=8;i++)q.setString(i,PREFIX+i);int n=q.executeUpdate();
-    check(n<=9,"LIMPIEZA_SOLO_FILAS_QA");
+   conn.setAutoCommit(false);
+   try {
+    int rows;
+    try(PreparedStatement count=conn.prepareStatement("SELECT COUNT(*) FROM orders WHERE ORDERID IN (?,?,?,?,?,?,?,?)")){
+     for(int i=1;i<=8;i++)count.setString(i,PREFIX+i);
+     try(ResultSet r=count.executeQuery()){r.next();rows=r.getInt(1);}
+    }
+    check(rows<=9,"CONTEO_PREVIO_QA_VALIDO");
+    try(PreparedStatement q=conn.prepareStatement("DELETE FROM orders WHERE ORDERID IN (?,?,?,?,?,?,?,?)")){
+     for(int i=1;i<=8;i++)q.setString(i,PREFIX+i);
+     int deleted=q.executeUpdate();
+     check(deleted==rows,"LIMPIEZA_SOLO_FILAS_QA");
+    }
+    conn.commit();
+   } catch(Throwable e) {
+    conn.rollback();
+    throw e;
    }
   }
  }
@@ -68,7 +82,6 @@ public final class KitchenMariaDbQa {
   p.setProperty("monitor.readonly","false");
   ensureIsolation();
   AppConfig.installRuntimeConfiguration(new File("/tmp/kylgis-qa-in-memory.properties"),p);
-  check(HibernateUtil.testConnection(),"MARIADB_CONNECTION_C3P0");
   DataLogicKitchen dl=new DataLogicKitchen();
   List<Orders> originals=new ArrayList<>();
   for(int i=1;i<=8;i++) {
@@ -77,6 +90,7 @@ public final class KitchenMariaDbQa {
    if(i==3) originals.add(order(PREFIX+i,30,1,tm));
   }
   try {
+   check(HibernateUtil.testConnection(),"MARIADB_CONNECTION_C3P0");
    for(Orders o:originals)dl.createOrder(o);
    List<Orders> all=dl.selectAllOrders();
    check(all.size()==9,"RECEPCION_NUEVE_LINEAS_OCHO_ORDENES");
