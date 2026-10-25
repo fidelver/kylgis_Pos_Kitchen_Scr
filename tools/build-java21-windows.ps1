@@ -24,7 +24,7 @@ foreach ($m in @("base","graphics","controls","fxml")) {
  if (-not (Test-Path $f)) { throw "JavaFX Windows faltante: $f" }
  $fx += $f
 }
-$lib = @(Get-ChildItem (Join-Path $root "lib") -Filter "*.jar" | Where-Object { $_.Name -ne "jfxrt-linux.jar" } | ForEach-Object { $_.FullName })
+$lib = @(Get-ChildItem (Join-Path $root "lib") -Filter "*.jar" | ForEach-Object { $_.FullName })
 $classes = Join-Path $Out "classes"
 $dist = Join-Path $Out "dist"
 New-Item -Force -ItemType Directory $classes, (Join-Path $dist "lib"), (Join-Path $dist "fx") | Out-Null

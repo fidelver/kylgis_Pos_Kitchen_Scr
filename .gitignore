@@ -11,3 +11,5 @@ hs_err_pid*.log
 /qa-java21/
 
 /qa-java21-*/
+/build-java21-ant/
+/dist-java21/

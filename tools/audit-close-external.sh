@@ -3,7 +3,7 @@ set -euo pipefail
 W=/home/fam/00-ChatGPT/00-MultiPlataforma/worktrees/kitchen-java21-modernizacion
 JAVA=/usr/lib/jvm/java-21-temurin-jdk/bin/java
 JCMD=/usr/lib/jvm/java-21-temurin-jdk/bin/jcmd
-CP="$(find "$W/lib" -maxdepth 1 -name '*.jar' ! -name 'jfxrt-linux.jar' | paste -sd: -):$W/qa-java21-pinned/dist/KylGis_POS_Monitor_de_Cocina_Java21.jar"
+CP="$(find "$W/lib" -maxdepth 1 -name '*.jar' | paste -sd: -):$W/qa-java21-pinned/dist/KylGis_POS_Monitor_de_Cocina_Java21.jar"
 FX=$(find "$W/qa-java21-pinned/dist/fx" -name '*.jar' | paste -sd: -)
 LOGDIR="$W/qa-java21-pinned/logs"
 mkdir -p "$LOGDIR"

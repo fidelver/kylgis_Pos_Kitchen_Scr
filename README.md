@@ -8,24 +8,36 @@
 - Versión KylGis: **1.0.0**
 - Sitio del producto: `https://pos.kylgis.com`
 - Clase principal: `com.mx.kylgis.kitchenscr.KitchenScr`
-- Artefacto: `dist/KylGis_POS_Monitor_de_Cocina.jar`
+- Artefacto: `KylGis_POS_Monitor_de_Cocina_Java21.jar`
 - Configuración local: `~/kylgis-pos-monitor-cocina.properties`
 
 ## Integración con KylGis POS
 
-Kitchen Screen puede reutilizar directamente un archivo `.properties` de KylGis POS. Las claves actuales son `kylgis.pos.config.enabled` y `kylgis.pos.config`. Las instalaciones anteriores que todavía tengan `~/kylgis-kitchen-screen.properties` o `~/chromis.properties` o las claves `unicenta.config.*` se migran automáticamente por compatibilidad.
+Kitchen Screen puede reutilizar directamente un archivo `.properties` de KylGis POS. Las claves actuales son `kylgis.pos.config.enabled` y `kylgis.pos.config`. Las instalaciones anteriores que todavía tengan `~/kylgis-kitchen-screen.properties`, `~/chromis.properties` o las claves `unicenta.config.*` se migran automáticamente por compatibilidad.
 
-## Compilación
+## Compilación y ejecución
 
-Requiere Java 8 con JavaFX. En el entorno de desarrollo actual:
+La ruta oficial utiliza **JDK 21** y **JavaFX modular 23.0.2**.
+
+Para compilar con Ant:
 
 ```bash
-export JAVA_HOME=/usr/lib/jvm/bellsoft-java8-full.x86_64
-export PATH="$JAVA_HOME/bin:$PATH"
-ant -f nbbuild.xml clean jar
+export JAVA_HOME=/usr/lib/jvm/java-21-temurin-jdk
+CORE_JAR=/ruta/inmutable/kylgispos.jar
+ant -f build.xml -Dkylgis.core.jar="$CORE_JAR" clean jar
+./dist-java21/Run.sh
 ```
 
-La aplicación no debe necesitar servidores ni repositorios de Chromis o uniCenta para compilarse: las dependencias necesarias están actualmente en `lib/`.
+Para generar el paquete portable con runtime `jlink` en Fedora:
+
+```bash
+CORE_SHA256=$(sha256sum "$CORE_JAR" | awk '{print $1}')
+KYLGIS_JAVA21_HOME=/usr/lib/jvm/java-21-temurin-jdk \
+CORE_JAR="$CORE_JAR" CORE_SHA256="$CORE_SHA256" \
+bash tools/build-java21-fedora.sh
+```
+
+El script produce `qa-java21/dist` con el JAR, JavaFX modular, dependencias y un runtime Java 21 aislado. En Windows se debe ejecutar `tools/build-java21-windows.ps1` con JDK 21 y JavaFX Windows.
 
 ## Autoría y licencia
 

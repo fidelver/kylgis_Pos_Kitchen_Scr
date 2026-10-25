@@ -1,17 +1,20 @@
 KylGis POS Monitor de Cocina
 ============================
 
-Este directorio contiene la versión compilada de KylGis POS Monitor de Cocina.
+Esta distribución utiliza JDK 21 y JavaFX modular 23.0.2.
 
 Ejecución desde terminal
 ------------------------
 
-Desde el directorio dist ejecuta:
+Desde el directorio de la distribución ejecuta:
 
-    java -jar "KylGis_POS_Monitor_de_Cocina.jar"
+    ./Run.sh
 
-El directorio lib forma parte de la aplicación y debe conservarse junto al JAR.
-No muevas únicamente el archivo JAR sin sus dependencias.
+En Windows ejecuta:
+
+    Run.bat
+
+El lanzador utiliza el runtime Java 21 incluido cuando el paquete portable lo contiene. No se debe separar la carpeta fx, lib o runtime.
 
 Configuración
 -------------

@@ -21,7 +21,7 @@ for m in base graphics controls fxml; do
   FX_JARS+=("$f")
 done
 LIB_JARS=()
-for f in "$ROOT"/lib/*.jar; do [[ "$f" == *jfxrt-linux.jar ]] || LIB_JARS+=("$f"); done
+for f in "$ROOT"/lib/*.jar; do LIB_JARS+=("$f"); done
 CP="$(IFS=:; echo "${FX_JARS[*]}:${LIB_JARS[*]}:$CORE_JAR")"
 find "$ROOT/src" "$ROOT/src-runtime" -type f -name '*.java' | sort > "$OUT/logs/sources.txt"
 "$JAVA_HOME/bin/javac" --release 21 -encoding UTF-8 -cp "$CP" -d "$OUT/classes" @"$OUT/logs/sources.txt" > "$OUT/logs/javac.log" 2>&1

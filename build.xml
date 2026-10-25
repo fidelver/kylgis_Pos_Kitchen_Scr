@@ -1,61 +1,104 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="kylgis_POS_Kitchen_Scr" default="default" basedir=".">
-    <description>Builds, tests, and runs the project kylgis_POS_Kitchen_Scr.</description>
-    <!-- Resolve the JDK from the environment/runtime instead of a machine-specific path. -->
+<project name="kylgis_POS_Kitchen_Scr" default="jar" basedir=".">
+    <description>Build and run KylGis POS Monitor de Cocina with JDK 21 and modular JavaFX.</description>
     <property environment="env"/>
-    <condition property="kylgis.java.home" value="${env.JAVA_HOME}">
-        <isset property="env.JAVA_HOME"/>
-    </condition>
-    <condition property="kylgis.java.home" value="${java.home}">
-        <available file="${java.home}/bin/javac"/>
-    </condition>
-    <property name="kylgis.java.home" location="${java.home}/.."/>
-    <property name="platforms.JDK_1.8.home" location="${kylgis.java.home}"/>
-    <import file="nbproject/build-impl.xml"/>
-    <!-- Override with -Dkylgis.core.jar=/path/to/kylgispos.jar when repositories are not siblings. -->
-    <property name="kylgis.core.jar" location="../kylgis_Pos/target/kylgispos.jar"/>
+    <condition property="kylgis.java.home" value="${env.JAVA_HOME}"><isset property="env.JAVA_HOME"/></condition>
+    <property name="kylgis.java.home" location="${java.home}"/>
+    <property name="javafx.version" value="23.0.2"/>
+    <property name="javafx.repo" location="${user.home}/.m2/repository/org/openjfx"/>
+    <condition property="javafx.platform" value="win"><os family="windows"/></condition>
+    <condition property="javafx.platform" value="mac"><os family="mac"/></condition>
+    <property name="javafx.platform" value="linux"/>
+    <property name="src.dir" location="src"/>
+    <property name="src.runtime.dir" location="src-runtime"/>
+    <property name="build.dir" location="build-java21-ant"/>
+    <property name="build.classes.dir" location="${build.dir}/classes"/>
+    <property name="dist.dir" location="dist-java21"/>
+    <property name="dist.jar" location="${dist.dir}/KylGis_POS_Monitor_de_Cocina_Java21.jar"/>
+    <condition property="kylgis.core.jar" value="${env.KYLGIS_CORE_JAR}"><isset property="env.KYLGIS_CORE_JAR"/></condition>
 
-    <!-- Fail early with a useful message when the selected JDK does not bundle JavaFX. -->
-    <target name="-pre-compile">
-        <available file="${platforms.JDK_1.8.home}/jre/lib/ext/jfxrt.jar"
-                   property="kylgis.javafx.available"/>
-        <fail unless="kylgis.javafx.available"
-              message="KylGis Kitchen requires a Java 8 JDK with JavaFX. Set JAVA_HOME or -Dkylgis.java.home to a compatible JDK; no OS/CPU-specific path is required."/>
+    <path id="javafx.path">
+        <fileset dir="${javafx.repo}/javafx-base/${javafx.version}" includes="javafx-base-${javafx.version}-${javafx.platform}.jar"/>
+        <fileset dir="${javafx.repo}/javafx-graphics/${javafx.version}" includes="javafx-graphics-${javafx.version}-${javafx.platform}.jar"/>
+        <fileset dir="${javafx.repo}/javafx-controls/${javafx.version}" includes="javafx-controls-${javafx.version}-${javafx.platform}.jar"/>
+        <fileset dir="${javafx.repo}/javafx-fxml/${javafx.version}" includes="javafx-fxml-${javafx.version}-${javafx.platform}.jar"/>
+    </path>
+    <condition property="javafx.available">
+        <and>
+            <available file="${javafx.repo}/javafx-base/${javafx.version}/javafx-base-${javafx.version}-${javafx.platform}.jar"/>
+            <available file="${javafx.repo}/javafx-graphics/${javafx.version}/javafx-graphics-${javafx.version}-${javafx.platform}.jar"/>
+            <available file="${javafx.repo}/javafx-controls/${javafx.version}/javafx-controls-${javafx.version}-${javafx.platform}.jar"/>
+            <available file="${javafx.repo}/javafx-fxml/${javafx.version}/javafx-fxml-${javafx.version}-${javafx.platform}.jar"/>
+        </and>
+    </condition>
+    <fail unless="javafx.available" message="JavaFX ${javafx.version} modular jars are required in ${javafx.repo}."/>
+    <fail message="Set -Dkylgis.core.jar to an immutable KylGis POS JAR (or KYLGIS_CORE_JAR).">
+        <condition><not><available file="${kylgis.core.jar}"/></not></condition>
+    </fail>
+
+    <path id="legacy.libs">
+        <fileset dir="lib" includes="*.jar"/>
+    </path>
+    <path id="compile.path">
+        <path refid="javafx.path"/>
+        <path refid="legacy.libs"/>
+        <pathelement location="${kylgis.core.jar}"/>
+    </path>
+
+    <target name="clean">
+        <delete dir="${build.dir}"/>
+        <delete dir="${dist.dir}"/>
     </target>
 
-    <!-- Runtime SPI bridge: compiled separately so the normal KitchenScreen
-         sources remain independent from the POS implementation classes. -->
-    <target name="-post-compile">
-        <javac srcdir="src-runtime" destdir="${build.classes.dir}"
-               source="1.8" target="1.8" encoding="UTF-8" includeantruntime="false">
-            <classpath>
-                <pathelement location="${build.classes.dir}"/>
-                <pathelement location="${kylgis.core.jar}"/>
-                <path path="${javac.classpath}"/>
-            </classpath>
-            <exclude name="META-INF/**"/>
+    <target name="compile">
+        <mkdir dir="${build.classes.dir}"/>
+        <javac srcdir="${src.dir}" destdir="${build.classes.dir}" encoding="UTF-8" release="21" fork="true" executable="${kylgis.java.home}/bin/javac" includeantruntime="false" classpathref="compile.path">
+            <src path="${src.runtime.dir}"/>
         </javac>
-        <copy todir="${build.classes.dir}/META-INF/services">
-            <fileset dir="src-runtime/META-INF/services"/>
+        <copy todir="${build.classes.dir}">
+            <fileset dir="${src.dir}"><exclude name="**/*.java"/></fileset>
+        </copy>
+        <copy todir="${build.classes.dir}">
+            <fileset dir="${src.runtime.dir}"><exclude name="**/*.java"/></fileset>
         </copy>
     </target>
 
-    <!-- Portable capability bundle consumed by KylGis runtime.modules.dir. -->
-    <target name="runtime-module" depends="jar"
-            description="Builds the isolated Kitchen runtime capability bundle">
-        <property name="runtime.module.dir"
-                  location="${dist.dir}/runtime-module/kitchen"/>
-        <delete dir="${runtime.module.dir}"/>
-        <mkdir dir="${runtime.module.dir}/lib"/>
-        <copy file="${dist.jar}" todir="${runtime.module.dir}"/>
-        <copy todir="${runtime.module.dir}/lib">
-            <fileset dir="${dist.dir}/lib" includes="*.jar"/>
-        </copy>
-        <echo file="${runtime.module.dir}/README.txt">KylGis Kitchen runtime capability
+    <target name="jar" depends="compile">
+        <delete dir="${dist.dir}"/>
+        <mkdir dir="${dist.dir}/lib"/>
+        <mkdir dir="${dist.dir}/fx"/>
+        <jar destfile="${dist.jar}" basedir="${build.classes.dir}">
+            <manifest><attribute name="Main-Class" value="com.mx.kylgis.kitchenscr.KitchenScr"/></manifest>
+        </jar>
+        <copy todir="${dist.dir}/lib"><fileset dir="lib" includes="*.jar"/></copy>
+        <copy todir="${dist.dir}/fx"><path refid="javafx.path"/></copy>
+        <echo file="${dist.dir}/Run.sh"><![CDATA[#!/usr/bin/env bash
+set -euo pipefail
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+JAVABIN="${JAVA_HOME:+$JAVA_HOME/bin/java}"
+JAVABIN="${JAVABIN:-java}"
+if [[ -x "$HERE/runtime/bin/java" ]]; then JAVABIN="$HERE/runtime/bin/java"; fi
+export GDK_BACKEND="${GDK_BACKEND:-x11}"
+FX=""
+for f in "$HERE"/fx/*.jar; do FX="${FX:+$FX:}$f"; done
+exec "$JAVABIN" --add-opens=java.base/java.lang=ALL-UNNAMED -Dprism.order=sw --module-path "$FX" --add-modules javafx.controls,javafx.fxml -cp "$HERE/KylGis_POS_Monitor_de_Cocina_Java21.jar:$HERE/lib/*" com.mx.kylgis.kitchenscr.KitchenScr "$@"
+]]></echo>
+        <chmod file="${dist.dir}/Run.sh" perm="755"/>
+        <echo file="${dist.dir}/Run.bat"><![CDATA[@echo off
+setlocal
+set "HERE=%~dp0"
+if exist "%HERE%runtime\bin\java.exe" (set "JAVABIN=%HERE%runtime\bin\java.exe") else (set "JAVABIN=java")
+set "FX=%HERE%fx\javafx-base-23.0.2-win.jar;%HERE%fx\javafx-graphics-23.0.2-win.jar;%HERE%fx\javafx-controls-23.0.2-win.jar;%HERE%fx\javafx-fxml-23.0.2-win.jar"
+"%JAVABIN%" --add-opens=java.base/java.lang=ALL-UNNAMED -Dprism.order=sw --module-path "%FX%" --add-modules javafx.controls,javafx.fxml -cp "%HERE%KylGis_POS_Monitor_de_Cocina_Java21.jar;%HERE%lib\*" com.mx.kylgis.kitchenscr.KitchenScr %*
+]]></echo>
+        <echo message="JAVA21_PACKAGE_READY ${dist.jar}"/>
+    </target>
 
-Copy this whole 'kitchen' directory below the directory configured by runtime.modules.dir.
-The KylGis core discovers the capability through META-INF/services.
-Do not flatten lib/ into the POS classpath; dependencies are intentionally isolated.
-</echo>
+    <target name="package" depends="jar"/>
+    <target name="default" depends="jar"/>
+    <target name="test" depends="compile"><echo message="Kitchen Java21 compilation test passed."/></target>
+
+    <target name="run" depends="jar">
+        <exec executable="${dist.dir}/Run.sh" failonerror="true"><arg line="${application.args}"/></exec>
     </target>
 </project>

@@ -26,7 +26,7 @@ public final class KitchenRuntimeCapability implements RuntimeCapability {
         }
         if (!javaFxAvailable()) {
             throw new IllegalStateException(
-                    "Kitchen capability requires JavaFX. Use a Java 8 distribution with JavaFX compatible with this operating system and CPU architecture.");
+                    "Kitchen capability requires modular JavaFX 23.0.2 running on JDK 21.");
         }
         File config = context.getConfig().getConfigFile();
         if (config == null || !config.isFile()) {
@@ -46,7 +46,7 @@ public final class KitchenRuntimeCapability implements RuntimeCapability {
 
     private static boolean systemModulePresent(String moduleName) {
         try {
-            // Compile with Java 8, but recognize Java 9+ system modules at runtime.
+            // JDK 21 exposes the module system directly; inspect only trusted runtime modules.
             // ModuleFinder.ofSystem() inspects only trusted runtime modules and does
             // not load any KylGis bundle class before integrity verification.
             Class<?> finderType = Class.forName("java.lang.module.ModuleFinder");

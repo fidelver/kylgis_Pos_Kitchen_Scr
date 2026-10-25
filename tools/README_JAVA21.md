@@ -1,12 +1,21 @@
-Kitchen Java 21 - candidato aislado (2026-10-19)
-Base 21c0b4edfa3186f7e90ca731fdca4974cff0410f. Java21 Temurin y JavaFX 23.0.2 Linux x64.
+# Kitchen Java 21
 
-Construir: tools/build-java21-fedora.sh con KYLGIS_JAVA21_HOME opcional. Modulos Linux javafx-base/graphics/controls/fxml 23.0.2 deben estar en caché Maven. Salida qa-java21/dist: jar, fx, lib, Run.sh.
+La ruta Java 21 es la compilación oficial de KylGis POS Monitor de Cocina.
 
-Windows: recompilar y empaquetar nativamente en Windows x64 con JDK21 y JavaFX Windows; no copiar runtime Linux.
+- JDK: Temurin 21.
+- JavaFX: 23.0.2 modular.
+- Compilación: `javac --release 21`.
+- Distribución portable: JAR + dependencias + JavaFX modular + runtime generado con `jlink`.
+- Fedora: `tools/build-java21-fedora.sh`.
+- Windows: `tools/build-java21-windows.ps1`.
 
-QA: compilacion Java21 --release 21 (18 fuentes) exitosa; jlink JavaFX Linux exitoso; validacion grafica FXML y BD requieren fixture LAB aislado; no certificado Windows ni ordenes.
+Los scripts requieren un JAR de KylGis POS inmutable y su SHA-256 mediante
+`CORE_JAR` y `CORE_SHA256`; rechazan artefactos tomados directamente de
+`target/`.
 
-Fedora FX smoke: compile tools/FxRuntimeSmoke.java with FX modulepath and execute with GDK_BACKEND=x11 and portable runtime; expected FX_SMOKE_OK and rc=0, no DB access.
+La QA funcional aislada validó compilación, ocho paneles de órdenes, botones
+Completar/Recuperar, configuración F12, cierre con X, liberación de sockets,
+apagado de JVM y una prueba negativa de fallos inyectados. Resultado:
+`KITCHEN_CORE_FUNCTIONAL_QA_PASS`.
 
-QA 2026-10-19: Hibernate4/Javassist con Orders detectó InaccessibleObjectException en ClassLoader.defineClass; prueba con --add-opens=java.base/java.lang=ALL-UNNAMED pasó sin ese error. La opción se agrega a Run.sh y Run.bat como workaround temporal. JDBC MySQL 5.1.26 solo se cargó sin conexión real; ORM y C3P0 con MariaDB aislada siguen pendientes.
+La ruta de compilación y ejecución utiliza únicamente JavaFX modular.
