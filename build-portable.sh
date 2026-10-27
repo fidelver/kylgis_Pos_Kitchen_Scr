@@ -11,7 +11,7 @@ CORE_JAR="${KYLGIS_CORE_JAR:-}"
 ant -f build.xml -Dkylgis.core.jar="$CORE_JAR" clean jar
 JAR="$(find dist-java21 -maxdepth 1 -type f -name '*.jar' -print -quit)"
 [[ -n "$JAR" ]] || { echo "ERROR: Kitchen jar not found" >&2; exit 5; }
-OUT="${PORTABLE_OUT:-dist-java21/portable}"
+OUT="${PORTABLE_OUT:-portable-out}"
 rm -rf "$OUT"; mkdir -p "$OUT"
 RUNTIME="$OUT/runtime"
 "$JAVA_HOME/bin/jlink" --add-modules java.base,java.desktop,java.logging,java.sql,java.naming,java.management,java.net.http,jdk.crypto.ec --output "$RUNTIME" --strip-debug --no-header-files --no-man-pages --compress=2
