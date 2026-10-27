@@ -13,7 +13,9 @@ JAR="$(find dist-java21 -maxdepth 1 -type f -name '*.jar' -print -quit)"
 [[ -n "$JAR" ]] || { echo "ERROR: Kitchen jar not found" >&2; exit 5; }
 OUT="${PORTABLE_OUT:-dist-java21/portable}"
 rm -rf "$OUT"; mkdir -p "$OUT"
-"$JAVA_HOME/bin/jpackage" --type app-image --name KylGisKitchen --app-version 1.3 --input "$(dirname "$JAR")" --main-jar "$(basename "$JAR")" --dest "$OUT" --runtime-image "$JAVA_HOME" --java-options "-Dfile.encoding=UTF-8" --java-options "--enable-native-access=ALL-UNNAMED"
+RUNTIME="$OUT/runtime"
+"$JAVA_HOME/bin/jlink" --add-modules java.base,java.desktop,java.logging,java.sql,java.naming,java.management,java.net.http,jdk.crypto.ec --output "$RUNTIME" --strip-debug --no-header-files --no-man-pages --compress=2
+"$JAVA_HOME/bin/jpackage" --type app-image --name KylGisKitchen --app-version 1.3 --input "$(dirname "$JAR")" --main-jar "$(basename "$JAR")" --dest "$OUT" --runtime-image "$RUNTIME" --java-options "-Dfile.encoding=UTF-8" --java-options "--enable-native-access=ALL-UNNAMED"
 (cd "$OUT"; sha256sum KylGisKitchen/* KylGisKitchen/lib/* 2>/dev/null) > "$OUT/KylGisKitchen.sha256"
 printf 'KITCHEN_PORTABLE_PACKAGE=%s/KylGisKitchen
 ' "$OUT"
